@@ -127,7 +127,7 @@
     </div>
 
     <footer class="bg-slate-900 text-white pt-16 pb-8 px-8">
-        <div class="container mx-auto grid grid-cols-1 md:grid-cols-3 gap-12 border-b border-slate-800 pb-12 mb-8">
+        <div class="container mx-auto grid grid-cols-1 md:grid-cols-3 gap-12 border-b border-slate-800 pb-12 mb-8 text-left">
             <div><h4 class="text-red-600 font-black text-lg italic uppercase mb-4">MyDream Digital</h4><p class="text-slate-400 text-xs leading-loose">Reliable digital solutions serving you since 2026.</p></div>
             <div><h4 class="font-bold uppercase text-xs tracking-widest mb-4">Contact</h4><p class="text-slate-400 text-xs">📞 +91 8919580315</p></div>
             <div><h4 class="font-bold uppercase text-xs tracking-widest mb-4 text-blue-400">Status</h4><p class="text-green-400 text-[10px] font-bold">Service Online ✅</p></div>
@@ -162,11 +162,7 @@
         function handleExtraFields(id, val) {
             const voterExtra = document.getElementById('voterExtraFields');
             const panExtra = document.getElementById('extraFieldsContainer');
-            
-            // Clear existing
-            voterExtra.innerHTML = "";
-            panExtra.innerHTML = "";
-
+            voterExtra.innerHTML = ""; panExtra.innerHTML = "";
             if(id === 'voter' && val === "Correction") {
                 voterExtra.innerHTML = `<input type="text" name="Correction_Details" placeholder="What needs to be changed?" required class="w-full p-3 border-2 border-orange-200 rounded-xl text-xs outline-none focus:border-red-600">`;
             } else if(id === 'pan' && val === "Correction") {
@@ -188,13 +184,10 @@
             document.getElementById('hiddenServiceName').value = s.name;
             document.getElementById('priceSpan').innerText = s.price;
             document.getElementById('payBtn').href = `upi://pay?pa=raja891958@ybl&pn=MyDream&am=${s.price}&cu=INR`;
-            
             panInfo.classList.add('hidden'); trackingUI.classList.add('hidden'); applyForm.classList.remove('hidden'); paymentSidebar.classList.remove('hidden');
             formSection.className = "md:w-7/12 p-6 md:p-10 order-1 md:order-2";
-
             if(id === 'pan') panInfo.classList.remove('hidden');
             if(id === 'track') { trackingUI.classList.remove('hidden'); applyForm.classList.add('hidden'); paymentSidebar.classList.add('hidden'); formSection.className = "w-full p-6 md:p-10"; }
-            
             document.getElementById('dynamicFields').innerHTML = s.fields.map(f => {
                 let attr = `name="${f.n}" placeholder="${f.p}" required class="w-full p-3 border rounded-xl text-xs outline-none focus:border-red-600"`;
                 if(f.id) attr += ` id="${f.id}"`;
@@ -202,7 +195,6 @@
                 if(f.s) return `<select ${attr} onchange="handleExtraFields('${id}', this.value)">${f.s.map(opt => `<option value="${opt}">${opt}</option>`).join('')}</select>`;
                 return `<input type="${f.t || 'text'}" ${attr}>`;
             }).join('');
-            
             document.getElementById('uploadContainer').innerHTML = s.files.map(file => `<div class="p-3 border rounded-xl bg-slate-50 text-center"><p class="text-[8px] font-black mb-1 text-slate-400 uppercase">${file}</p><input type="file" required class="text-[8px] w-full"></div>`).join('');
             document.getElementById('formModal').classList.add('active');
             if(id === 'print_service') calcPrintPrice();
@@ -220,8 +212,7 @@
                 const data = await response.json();
                 resultDiv.classList.remove('hidden');
                 statusText.innerText = data.status === "Not Found" ? "❌ ID NOT FOUND" : "🚀 STATUS: " + data.status;
-                statusText.className = "text-2xl font-black text-blue-700 italic uppercase";
-            } catch (e) { alert("Error connecting to hub!"); }
+            } catch (e) { alert("Sync Error!"); }
             btn.innerText = "Track Now 🔍";
         }
 
@@ -232,7 +223,7 @@
             if(!form.checkValidity()) { document.getElementById('formErr').style.display = 'block'; return; }
             
             const masterID = "MD-" + Math.floor(Math.random() * 900000 + 100000);
-            submitBtn.innerHTML = "Processing All Files... ⏳";
+            submitBtn.innerHTML = "Processing Submission... ⏳";
             submitBtn.disabled = true;
 
             const filesArray = [];
@@ -242,7 +233,7 @@
                 reader.onload = () => resolve({ name: file.name, type: file.type, base64: reader.result.split(',')[1] });
             });
 
-            for (const input of fileInputs) { if (input.files.length > 0) { const fileData = await readFile(input.files[0]); filesArray.push(fileData); } }
+            for (const input of fileInputs) { if (input.files[0]) filesArray.push(await readFile(input.files[0])); }
 
             const formData = new FormData(form);
             const serviceName = document.getElementById('hiddenServiceName').value;
@@ -250,21 +241,34 @@
             formData.forEach((value, key) => { if(typeof value === 'string') dataObj[key] = value; });
 
             try {
+                // 1. Send data to Google Sheets
                 await fetch(SCRIPT_URL, { method: "POST", mode: "no-cors", body: JSON.stringify(dataObj) });
-                document.getElementById('displayUniqueID').innerText = masterID;
                 
-                // WhatsApp Automation Setup
+                // 2. Setup WhatsApp Notify Button
+                document.getElementById('displayUniqueID').innerText = masterID;
                 document.getElementById('waNotifyBtn').onclick = () => {
-                    const msg = `Hello MyDream, I applied for ${serviceName}. My Tracking ID is: ${masterID}. Please check.`;
+                    const msg = `Hello MyDream, I applied for ${serviceName}. My ID: ${masterID}.`;
                     window.open(`https://wa.me/918919580315?text=${encodeURIComponent(msg)}`, '_blank');
                 };
 
-                window.location.href = document.getElementById('payBtn').href;
-                setTimeout(() => { 
-                    document.getElementById('formModal').classList.remove('active');
-                    document.getElementById('successModal').classList.add('active');
-                }, 4000);
-            } catch (e) { alert("Sync Error!"); submitBtn.disabled = false; }
+                // 3. Trigger Payment App and Show Success Modal
+                const upiUrl = document.getElementById('payBtn').href;
+                
+                // Close Form Modal immediately
+                document.getElementById('formModal').classList.remove('active');
+                // Open Success Modal immediately
+                document.getElementById('successModal').classList.add('active');
+
+                // Redirect to Payment (Using assign for better app compatibility)
+                setTimeout(() => {
+                    window.location.assign(upiUrl);
+                }, 500);
+
+            } catch (e) { 
+                alert("Submission Error!"); 
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = "Retry Submission";
+            }
         }
 
         function closeForm() { document.getElementById('formModal').classList.remove('active'); }
