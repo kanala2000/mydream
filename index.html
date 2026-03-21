@@ -10,19 +10,18 @@
         body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f8fafc; overflow-x: hidden; }
         .service-card { transition: all 0.3s ease; border: 1px solid #e2e8f0; cursor: pointer; background: white; border-radius: 12px; }
         .service-card:hover { transform: translateY(-8px); border-color: #ef4444; box-shadow: 0 15px 30px -10px rgba(0,0,0,0.1); }
-        .error-msg { background-color: #fee2e2; color: #b91c1c; padding: 8px 12px; border-radius: 4px; font-size: 10px; margin-top: 4px; display: none; }
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 100; align-items: center; justify-content: center; padding: 10px; }
         .modal.active { display: flex; }
         @keyframes scrollText { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
         .news-scroll { display: inline-block; white-space: nowrap; animation: scrollText 25s linear infinite; }
-        .success-card { background: white; padding: 30px; border-radius: 24px; text-align: center; max-width: 400px; width: 90%; box-shadow: 0 20px 40px rgba(0,0,0,0.2); }
+        .success-card { background: white; padding: 30px; border-radius: 24px; text-align: center; max-width: 400px; width: 90%; box-shadow: 0 20px 40px rgba(0,0,0,0.5); border: 2px solid #ef4444; }
     </style>
 </head>
 <body>
 
     <div class="bg-red-600 text-white py-2 overflow-hidden border-b border-red-700 relative z-[60]">
         <div class="news-scroll font-bold text-xs uppercase tracking-widest" id="news-ticker">
-            🔥 Latest Update: Govt makes Aadhar-PAN linking mandatory | 🛡️ Processing time: 120 minutes | 🚀 Digital Seva updates.
+            🔥 Latest Update: Govt makes Aadhar-PAN linking mandatory | 🛡️ Processing time: 120 minutes | 🗳️ Apply PANCARD & Build Your History.
         </div>
     </div>
 
@@ -37,36 +36,44 @@
     </header>
 
     <main class="container mx-auto mt-6 px-4 pb-10">
-        <h2 class="bg-slate-900 text-white py-3 px-6 text-sm font-black rounded-t-xl text-center uppercase italic mb-6">General Services</h2>
+        <h2 class="bg-slate-900 text-white py-3 px-6 text-sm font-black rounded-t-xl text-center uppercase tracking-widest italic mb-6">General Services</h2>
         <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-12" id="general-grid"></div>
         
         <div class="bg-blue-50 border border-blue-100 p-8 rounded-3xl text-center mb-10 shadow-sm max-w-4xl mx-auto">
-            <h3 class="text-xl font-black text-blue-900 mb-2 uppercase">Become a PAN Agent</h3>
-            <button onclick="openForm('agent_reg')" class="bg-blue-800 text-white px-10 py-3 rounded-xl font-bold uppercase shadow-lg">Register Now</button>
+            <h3 class="text-xl font-black text-blue-900 mb-2 uppercase tracking-tight">Become a PAN Agent</h3>
+            <button onclick="openForm('agent_reg')" class="bg-blue-800 text-white px-10 py-3 rounded-xl font-bold uppercase shadow-lg hover:bg-blue-900 transition">Register Now</button>
         </div>
     </main>
 
     <div id="formModal" class="modal">
         <div class="bg-white w-full max-w-5xl rounded-2xl overflow-hidden shadow-2xl relative mx-2 max-h-[95vh] flex flex-col">
-            <button onclick="closeForm()" class="absolute top-4 right-6 text-3xl font-bold text-gray-400">&times;</button>
+            <button onclick="closeForm()" class="absolute top-4 right-6 text-3xl font-bold text-gray-400 hover:text-black z-10">&times;</button>
             <div class="flex flex-col md:flex-row overflow-y-auto">
                 <div id="paymentSidebar" class="md:w-5/12 bg-slate-900 p-8 text-white flex flex-col items-center justify-center text-center">
                     <p class="text-[10px] text-blue-400 font-bold uppercase mb-2">Secure Payment</p>
                     <div class="bg-white p-2 rounded-xl mb-4 border-4 border-slate-700">
                         <img src="https://i.postimg.cc/d3JSJL8m/Whats-App-Image-2026-03-20-at-1-18-04-PM.jpg" class="w-32 h-32 md:w-48 md:h-48 object-contain">
                     </div>
-                    <p class="text-3xl font-black">₹<span id="priceSpan">0</span></p>
-                    <a id="payBtn" href="#" class="text-[10px] font-bold bg-blue-600 px-8 py-3 rounded-full inline-block mt-4 uppercase">Pay via App 📱</a>
+                    <p class="text-3xl md:text-4xl font-black">₹<span id="priceSpan">0</span></p>
+                    <a id="payBtn" href="#" class="text-[10px] font-bold bg-blue-600 px-8 py-3 rounded-full inline-block mt-4 uppercase hover:bg-blue-700 transition">Pay via App 📱</a>
                 </div>
 
-                <div class="md:w-7/12 p-6 md:p-10">
-                    <h3 id="modalTitle" class="text-xl font-black text-slate-900 mb-6 uppercase">Service Form</h3>
+                <div id="formSection" class="md:w-7/12 p-6 md:p-10">
+                    <h3 id="modalTitle" class="text-xl md:text-2xl font-black text-slate-900 mb-6 uppercase">Service Form</h3>
+                    
+                    <div id="trackingUI" class="hidden text-center py-10">
+                        <input type="text" id="trackIDInput" placeholder="Enter MD-ID" class="w-full p-4 border-2 rounded-xl text-center font-black text-lg outline-none mb-4 focus:border-blue-600">
+                        <button onclick="fetchStatus()" id="trackBtn" class="bg-blue-600 text-white px-8 py-3 rounded-xl font-bold uppercase w-full">Track Now 🔍</button>
+                        <div id="statusResult" class="mt-8 p-6 rounded-2xl hidden bg-slate-50 border border-slate-200">
+                            <p id="statusText" class="text-2xl font-black text-blue-700 italic">---</p>
+                        </div>
+                    </div>
+
                     <form id="applyForm" onsubmit="validateForm(event)" class="space-y-4">
                         <input type="hidden" id="hiddenServiceName">
                         <div id="dynamicFields" class="grid grid-cols-1 gap-4"></div>
                         <div id="uploadContainer" class="grid grid-cols-2 gap-3 pt-4 border-t"></div>
-                        <div id="formErr" class="error-msg text-center font-bold italic">Please fill all fields!</div>
-                        <button type="submit" id="submitBtn" class="w-full bg-red-600 text-white py-4 rounded-xl font-black uppercase tracking-widest mt-4">Pay & Submit📤</button>
+                        <button type="submit" id="submitBtn" class="w-full bg-red-600 text-white py-4 rounded-xl font-black uppercase tracking-widest shadow-xl active:scale-95 mt-4">Pay & Submit📤</button>
                     </form>
                 </div>
             </div>
@@ -74,14 +81,15 @@
     </div>
 
     <div id="successModal" class="modal">
-        <div class="success-card">
+        <div class="success-card relative">
+            <button onclick="closeSuccess()" class="absolute top-2 right-4 text-2xl font-bold text-gray-400">&times;</button>
             <div class="text-5xl mb-4 animate-bounce">✅</div>
             <h3 class="text-xl font-black text-slate-900 uppercase">Submission Successful</h3>
             <div class="bg-slate-100 p-4 rounded-2xl my-6 border-2 border-dashed border-blue-400">
-                <p id="displayUniqueID" class="text-2xl font-black text-blue-600">MD-000000</p>
+                <p id="displayUniqueID" class="text-2xl font-black text-blue-600 tracking-tighter">MD-000000</p>
             </div>
-            <button id="waNotifyBtn" class="w-full bg-green-500 text-white py-3 rounded-xl font-black text-xs mb-3 shadow-lg">WhatsApp ID 📱</button>
-            <button onclick="location.reload()" class="w-full bg-slate-900 text-white py-3 rounded-xl font-bold text-xs">Done</button>
+            <button id="waNotifyBtn" class="w-full bg-green-500 text-white py-3 rounded-xl font-black uppercase text-xs mb-3 shadow-lg">Send ID to WhatsApp 📱</button>
+            <button onclick="closeSuccess()" class="w-full bg-slate-900 text-white py-3 rounded-xl font-bold uppercase text-xs">Done</button>
         </div>
     </div>
 
@@ -89,91 +97,81 @@
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzZMNWtjQBAtWSgEO8--PKRsDAqoac-h_R5-_DwiSt-S6yiTNEcP2mkbrTFAX89Zako/exec";
 
         const services = {
-            "pan": { name: "PAN Card (New/Correction)", price: 250, icon: "🛡️", fields: [{n: "Type", p: "New or Correction", s: ["New PAN", "Correction"]}, {n: "Name", p: "Name"}, {n: "DOB", p: "DOB", t: "date"}, {n: "Mobile", p: "Mobile"}], files: ["Aadhar", "Photo", "Sign", "Payment Receipt"] },
-            "voter": { name: "Voter Card (New/Correction)", price: 100, icon: "🗳️", fields: [{n: "Type", p: "New or Correction", s: ["New Voter", "Correction"]}, {n: "Name", p: "Full Name"}, {n: "Mobile", p: "Mobile"}], files: ["Aadhar", "Photo", "Sign", "Payment Receipt"] },
-            "udyam": { name: "Udyam Registration", price: 300, icon: "🏢", fields: [{n: "Business_Name", p: "Business Name"}, {n: "Mobile", p: "Mobile"}], files: ["Aadhar", "Pan", "Payment Receipt"] }
+            "pan": { name: "PAN Card (New/Correction)", price: 250, icon: "🛡️", fields: [{n: "Type", p: "New/Correction", s: ["New PAN", "Correction"]}, {n: "Name", p: "Name"}, {n: "Father_Name", p: "Father"}, {n: "DOB", p: "DOB", t: "date"}, {n: "Mobile", p: "Mobile"}], files: ["Aadhar", "Photo", "Sign", "Payment Receipt"] },
+            "voter": { name: "Voter Card (New/Correction)", price: 100, icon: "🗳️", fields: [{n: "Type", p: "New/Correction", s: ["New Voter", "Correction"]}, {n: "Name", p: "Full Name"}, {n: "DOB", p: "DOB", t: "date"}, {n: "Mobile", p: "Mobile"}], files: ["Aadhar", "Photo", "Sign", "Payment Receipt"] },
+            "udyam": { name: "Udyam Registration", price: 300, icon: "🏢", fields: [{n: "Business_Name", p: "Business Name"}, {n: "Mobile", p: "Mobile"}, {n: "Mail", p: "Email"}], files: ["Aadhar", "Pan", "Payment Receipt"] },
+            "pvc": { name: "PVC Card Print", price: 100, icon: "💳", fields: [{n: "Name", p: "Name on Card"}, {n: "Phone", p: "Phone Number"}, {n: "Address", p: "Address"}], files: ["PDF_File", "Payment Receipt"] },
+            "print_service": { name: "Print & Delivery", price: 30, icon: "📦", fields: [{n: "Name", p: "Customer Name"}, {n: "Pages", p: "Total Pages"}, {n: "Phone", p: "Mobile"}, {n: "Address", p: "Address"}], files: ["PDF_File", "Payment Receipt"] },
+            "track": { name: "Track Application", price: 0, icon: "🔍", fields: [], files: [] },
+            "agent_reg": { name: "Agent Registration", price: 100, icon: "🔑", fields: [{n: "Name", p: "Name"}, {n: "Phone", p: "Phone"}], files: ["Receipt"] }
         };
 
         function openForm(id) {
             const s = services[id];
+            const trackingUI = document.getElementById('trackingUI');
+            const applyForm = document.getElementById('applyForm');
+            const paymentSidebar = document.getElementById('paymentSidebar');
+            
             document.getElementById('modalTitle').innerText = s.name;
             document.getElementById('hiddenServiceName').value = s.name;
             document.getElementById('priceSpan').innerText = s.price;
             document.getElementById('payBtn').href = `upi://pay?pa=raja891958@ybl&pn=MyDream&am=${s.price}&cu=INR`;
             
+            trackingUI.classList.add('hidden'); applyForm.classList.remove('hidden'); paymentSidebar.classList.remove('hidden');
+            if(id === 'track') { trackingUI.classList.remove('hidden'); applyForm.classList.add('hidden'); paymentSidebar.classList.add('hidden'); }
+            
             document.getElementById('dynamicFields').innerHTML = s.fields.map(f => {
                 let attr = `name="${f.n}" placeholder="${f.p}" required class="w-full p-3 border rounded-xl text-xs outline-none focus:border-red-600"`;
-                if(f.s) return `<select ${attr}>${f.s.map(opt => `<option value="${opt}">${opt}</option>`).join('')}</select>`;
-                return `<input type="${f.t || 'text'}" ${attr}>`;
+                return f.s ? `<select ${attr}>${f.s.map(opt => `<option value="${opt}">${opt}</option>`).join('')}</select>` : `<input type="${f.t || 'text'}" ${attr}>`;
             }).join('');
             
-            document.getElementById('uploadContainer').innerHTML = s.files.map(file => `<div class="p-3 border rounded-xl bg-slate-50 text-center"><p class="text-[8px] font-black mb-1 uppercase">${file}</p><input type="file" required class="text-[8px] w-full"></div>`).join('');
+            document.getElementById('uploadContainer').innerHTML = s.files.map(file => `<div class="p-3 border rounded-xl bg-slate-50 text-center"><p class="text-[8px] font-black mb-1 uppercase text-slate-400">${file}</p><input type="file" required class="text-[8px] w-full"></div>`).join('');
             document.getElementById('formModal').classList.add('active');
         }
 
         async function validateForm(event) {
-            event.preventDefault(); // Stop page refresh
-            const form = document.getElementById('applyForm');
+            event.preventDefault();
             const submitBtn = document.getElementById('submitBtn');
-            const fileInputs = document.querySelectorAll('#uploadContainer input[type="file"]');
-            
-            if(!form.checkValidity()) { document.getElementById('formErr').style.display = 'block'; return; }
-            
             const masterID = "MD-" + Math.floor(Math.random() * 900000 + 100000);
-            submitBtn.innerHTML = "Submitting... 📡";
+            submitBtn.innerHTML = "Submitting Data... ⏳";
             submitBtn.disabled = true;
 
             const filesArray = [];
             const readFile = (file) => new Promise((resolve) => {
-                const reader = new FileReader();
-                reader.readAsDataURL(file);
+                const reader = new FileReader(); reader.readAsDataURL(file);
                 reader.onload = () => resolve({ name: file.name, type: file.type, base64: reader.result.split(',')[1] });
             });
 
-            for (const input of fileInputs) { if (input.files[0]) filesArray.push(await readFile(input.files[0])); }
+            for (const input of document.querySelectorAll('input[type="file"]')) { 
+                if (input.files[0]) filesArray.push(await readFile(input.files[0])); 
+            }
 
-            const formData = new FormData(form);
-            const serviceName = document.getElementById('hiddenServiceName').value;
-            const dataObj = { Unique_ID: masterID, Selected_Service: serviceName, filesArray: filesArray };
-            formData.forEach((value, key) => { if(typeof value === 'string') dataObj[key] = value; });
+            const dataObj = { Unique_ID: masterID, Selected_Service: document.getElementById('hiddenServiceName').value, filesArray: filesArray };
+            new FormData(document.getElementById('applyForm')).forEach((v, k) => dataObj[k] = v);
 
             try {
-                // 1. SEND DATA First (Await ensures it finishes)
                 await fetch(SCRIPT_URL, { method: "POST", mode: "no-cors", body: JSON.stringify(dataObj) });
-
-                // 2. Setup ID Card
                 document.getElementById('displayUniqueID').innerText = masterID;
-                document.getElementById('waNotifyBtn').onclick = () => {
-                    const msg = `Hello, My ID: ${masterID} for ${serviceName}`;
-                    window.open(`https://wa.me/918919580315?text=${encodeURIComponent(msg)}`, '_blank');
-                };
+                document.getElementById('waNotifyBtn').onclick = () => window.open(`https://wa.me/918919580315?text=My ID: ${masterID}`, '_blank');
+                
+                // TRIGGER PAYMENT (Safe Redirection)
+                window.location.assign(document.getElementById('payBtn').href);
 
-                // 3. FORCE TRIGGER PAYMENT (Invisible Link Method)
-                const upiUrl = document.getElementById('payBtn').href;
-                const link = document.createElement('a');
-                link.href = upiUrl;
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-
-                // 4. SHOW MODAL
+                // SHOW SUCCESS (STILL CARD)
                 document.getElementById('formModal').classList.remove('active');
                 document.getElementById('successModal').classList.add('active');
-
-            } catch (e) {
-                // Show card anyway if data went through
-                document.getElementById('formModal').classList.remove('active');
-                document.getElementById('successModal').classList.add('active');
-            }
+            } catch (e) { alert("Network Error!"); submitBtn.disabled = false; }
         }
 
         function closeForm() { document.getElementById('formModal').classList.remove('active'); }
+        function closeSuccess() { document.getElementById('successModal').classList.remove('active'); }
         function renderGrid() {
             const grid = document.getElementById('general-grid');
             grid.innerHTML = "";
             Object.keys(services).forEach(id => {
+                if(id === 'agent_reg') return;
                 const s = services[id];
-                grid.innerHTML += `<div class="service-card p-6 flex flex-col items-center text-center shadow-sm" onclick="openForm('${id}')"><div class="text-3xl mb-3">${s.icon}</div><h4 class="font-bold text-[10px] uppercase">${s.name}</h4><p class="text-red-600 font-black text-sm mt-2">₹${s.price}</p></div>`;
+                grid.innerHTML += `<div class="service-card p-6 flex flex-col items-center text-center shadow-sm" onclick="openForm('${id}')"><div class="text-3xl mb-3">${s.icon}</div><h4 class="font-bold text-[10px] uppercase h-8 flex items-center">${s.name}</h4><p class="text-red-600 font-black text-sm mt-2">₹${s.price}</p></div>`;
             });
         }
         renderGrid();
