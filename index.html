@@ -20,7 +20,7 @@
 <body>
 
     <div class="bg-red-600 text-white py-2 overflow-hidden border-b border-red-700 relative z-[60]">
-        <div class="news-scroll font-bold text-xs uppercase tracking-widest" id="news-ticker">
+        <div class="news-scroll font-bold text-xs uppercase tracking-widest">
             🔥 Latest Update: Govt makes Aadhar-PAN linking mandatory | 🛡️ Processing time: 120 minutes | 🚀 Digital Seva updates.
         </div>
     </div>
@@ -47,7 +47,7 @@
 
     <div id="formModal" class="modal">
         <div class="bg-white w-full max-w-5xl rounded-2xl overflow-hidden shadow-2xl relative mx-2 max-h-[95vh] flex flex-col">
-            <button onclick="closeForm()" class="absolute top-4 right-6 text-3xl font-bold text-gray-400 hover:text-black z-10">&times;</button>
+            <button onclick="closeForm()" class="absolute top-4 right-6 text-3xl font-bold text-gray-400 z-10">&times;</button>
             <div class="flex flex-col md:flex-row overflow-y-auto">
                 <div id="paymentSidebar" class="md:w-5/12 bg-slate-900 p-8 text-white flex flex-col items-center justify-center text-center">
                     <p class="text-[10px] text-blue-400 font-bold uppercase mb-2">Secure Payment</p>
@@ -56,30 +56,17 @@
                     </div>
                     <p class="text-3xl md:text-4xl font-black">₹<span id="priceSpan">0</span></p>
                     <p id="priceInfo" class="text-[10px] text-slate-400 mt-2 font-bold italic"></p>
-                    <a id="payBtn" href="#" class="text-[10px] font-bold bg-blue-600 px-8 py-3 rounded-full inline-block mt-4 uppercase hover:bg-blue-700 transition active:scale-95">Pay via App 📱</a>
+                    <a id="payBtn" href="#" class="text-[10px] font-bold bg-blue-600 px-8 py-3 rounded-full inline-block mt-4 uppercase hover:bg-blue-700 transition">Pay via App 📱</a>
                 </div>
 
                 <div id="formSection" class="md:w-7/12 p-6 md:p-10">
                     <h3 id="modalTitle" class="text-xl md:text-2xl font-black text-slate-900 mb-6 uppercase italic">Service Form</h3>
-                    <div id="panImages" class="hidden grid grid-cols-2 gap-4 mb-6">
-                        <div class="text-center"><p class="text-[8px] font-bold">Emergency</p><img src="https://i.postimg.cc/4dpSXcnz/download.jpg" class="h-20 w-full object-cover rounded-lg border"></div>
-                        <div class="text-center"><p class="text-[8px] font-bold">Manual</p><img src="https://i.postimg.cc/KztHmT4P/sinp.jpg" class="h-20 w-full object-cover rounded-lg border"></div>
-                    </div>
-
-                    <div id="trackingUI" class="hidden text-center py-10">
-                        <input type="text" id="trackIDInput" placeholder="Enter MD-ID" class="w-full p-4 border-2 rounded-xl text-center font-black outline-none mb-4 focus:border-blue-600">
-                        <button onclick="fetchStatus()" id="trackBtn" class="bg-blue-600 text-white px-8 py-3 rounded-xl font-bold uppercase w-full">Track Now 🔍</button>
-                        <div id="statusResult" class="mt-8 p-6 rounded-2xl hidden bg-slate-50 border border-slate-200">
-                            <p id="statusText" class="text-2xl font-black text-blue-700 italic">---</p>
-                        </div>
-                    </div>
-
                     <form id="applyForm" onsubmit="validateForm(event)" class="space-y-4">
                         <input type="hidden" id="hiddenServiceName">
                         <div id="dynamicFields" class="grid grid-cols-1 gap-4"></div>
                         <div id="correctionFields" class="space-y-4"></div>
                         <div id="uploadContainer" class="grid grid-cols-2 gap-3 pt-4 border-t"></div>
-                        <button type="submit" id="submitBtn" class="w-full bg-red-600 text-white py-4 rounded-xl font-black uppercase tracking-widest shadow-xl active:scale-95 mt-4">Pay & Submit📤</button>
+                        <button type="submit" id="submitBtn" class="w-full bg-red-600 text-white py-4 rounded-xl font-black uppercase tracking-widest shadow-xl mt-4">Pay & Submit📤</button>
                     </form>
                 </div>
             </div>
@@ -102,10 +89,10 @@
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzZMNWtjQBAtWSgEO8--PKRsDAqoac-h_R5-_DwiSt-S6yiTNEcP2mkbrTFAX89Zako/exec";
 
         const services = {
-            "pan": { name: "PAN Card (New/Correction)", price: 250, icon: "🛡️", fields: [{n: "Type", p: "New/Correction", s: ["New PAN", "Correction"]}, {n: "Speed", p: "Speed", s: ["Manual (3Days)", "Emergency (2Hrs)"]}, {n: "Name", p: "Name"}, {n: "Father", p: "Father Name"}, {n: "DOB", p: "Date of Birth", t: "date"}, {n: "Mobile", p: "Mobile"}], files: ["Aadhar", "Photo", "Sign", "Payment Receipt"] },
+            "pan": { name: "PAN Card (New/Correction)", price: 250, icon: "🛡️", fields: [{n: "Type", p: "New/Correction", s: ["New PAN", "Correction"]}, {n: "Name", p: "Name"}, {n: "Father", p: "Father Name"}, {n: "DOB", p: "Date of Birth", t: "date"}, {n: "Mobile", p: "Mobile"}], files: ["Aadhar", "Photo", "Sign", "Payment Receipt"] },
             "voter": { name: "Voter Card (New/Correction)", price: 100, icon: "🗳️", fields: [{n: "Type", p: "New/Correction", s: ["New Voter", "Correction"]}, {n: "Name", p: "Full Name"}, {n: "DOB", p: "Date of Birth", t: "date"}, {n: "Mobile", p: "Mobile"}], files: ["Aadhar", "Photo", "Sign", "Payment Receipt"] },
-            "udyam": { name: "Udyam Registration", price: 300, icon: "🏢", fields: [{n: "Business_Name", p: "Business Name"}, {n: "Business_Type", p: "Business Type", s: ["Proprietorship", "Partnership", "Others"]}, {n: "Proprietor_Name", p: "Owner Name"}, {n: "DOB", p: "Owner DOB", t: "date"}, {n: "Aadhar_Number", p: "12 Digit Aadhar"}, {n: "Mobile", p: "Mobile"}], files: ["Aadhar", "Pan", "Payment Receipt"] },
-            "pvc": { name: "PVC Card Print", price: 100, icon: "💳", fields: [{n: "Name", p: "Card Name"}, {n: "Mobile", p: "Mobile"}, {n: "Address", p: "Full Address"}], files: ["PDF_File", "Payment Receipt"] },
+            "udyam": { name: "Udyam Registration", price: 300, icon: "🏢", fields: [{n: "Business_Name", p: "Business Name"}, {n: "Business_Type", p: "Business Type", s: ["Proprietorship", "Partnership"]}, {n: "Owner_Name", p: "Owner Name"}, {n: "Aadhar", p: "Aadhar Number"}, {n: "DOB", p: "Owner DOB", t: "date"}, {n: "Mobile", p: "Mobile"}], files: ["Aadhar", "Pan", "Payment Receipt"] },
+            "pvc": { name: "PVC Card Print", price: 100, icon: "💳", fields: [{n: "Name", p: "Card Name"}, {n: "Address", p: "Full Address"}], files: ["PDF_File", "Payment Receipt"] },
             "print_service": { name: "Print & Delivery", price: 30, icon: "📦", fields: [{n: "Name", p: "Name"}, {n: "Mobile", p: "Mobile"}, {n: "Pages", p: "Total Pages (Min 20)", t: "number", id: "pgCount", oninput: "calcPrint()"}, {n: "Address", p: "Full Delivery Address"}], files: ["PDF_File", "Payment Receipt"] },
             "track": { name: "Track Application", price: 0, icon: "🔍", fields: [], files: [] },
             "agent_reg": { name: "Agent Registration", price: 100, icon: "🔑", fields: [{n: "Name", p: "Name"}, {n: "Phone", p: "Phone"}], files: ["Receipt"] }
@@ -122,7 +109,7 @@
 
         function handleCorrection(id, val) {
             const container = document.getElementById('correctionFields');
-            container.innerHTML = (val === "Correction") ? `<input type="text" name="Existing_ID" placeholder="Existing ID Number" required class="w-full p-3 border rounded-xl text-xs"><input type="text" name="Update_What" placeholder="What to update?" required class="w-full p-3 border-2 border-orange-200 rounded-xl text-xs">` : "";
+            container.innerHTML = (val === "Correction") ? `<input type="text" name="Existing_ID" placeholder="Existing ID Number" required class="w-full p-3 border rounded-xl text-xs"><input type="text" name="Correction_Details" placeholder="What to update?" required class="w-full p-3 border-2 border-orange-200 rounded-xl text-xs">` : "";
         }
 
         function openForm(id) {
@@ -130,10 +117,8 @@
             document.getElementById('modalTitle').innerText = s.name;
             document.getElementById('hiddenServiceName').value = s.name;
             document.getElementById('priceSpan').innerText = s.price;
-            document.getElementById('priceInfo').innerText = "";
             document.getElementById('payBtn').href = `upi://pay?pa=raja891958@ybl&pn=MyDream&am=${s.price}&cu=INR`;
             
-            document.getElementById('panImages').classList.toggle('hidden', id !== 'pan');
             document.getElementById('trackingUI').classList.toggle('hidden', id !== 'track');
             document.getElementById('applyForm').classList.toggle('hidden', id === 'track');
             document.getElementById('paymentSidebar').classList.toggle('hidden', id === 'track');
@@ -149,24 +134,16 @@
             
             document.getElementById('uploadContainer').innerHTML = s.files.map(file => `<div class="p-3 border rounded-xl bg-slate-50 text-center"><p class="text-[8px] font-black uppercase text-slate-400">${file}</p><input type="file" required class="text-[8px] w-full"></div>`).join('');
             document.getElementById('formModal').classList.add('active');
-        }
-
-        async function fetchStatus() {
-            const id = document.getElementById('trackIDInput').value.trim();
-            if(!id) return alert("Enter ID!");
-            try {
-                const res = await fetch(`${SCRIPT_URL}?trackID=${id}`);
-                const data = await res.json();
-                document.getElementById('statusResult').classList.remove('hidden');
-                document.getElementById('statusText').innerText = data.status === "Not Found" ? "❌ ID NOT FOUND" : "🚀 STATUS: " + data.status;
-            } catch (e) { alert("Sync Error!"); }
+            
+            // Push state for back button handling
+            history.pushState({modal: true}, "");
         }
 
         async function validateForm(event) {
             event.preventDefault();
             const submitBtn = document.getElementById('submitBtn');
             const masterID = "MD-" + Math.floor(Math.random() * 900000 + 100000);
-            submitBtn.innerHTML = "Syncing with Drive... ⏳";
+            submitBtn.innerHTML = "Submitting Data... ⏳";
             submitBtn.disabled = true;
 
             const filesArray = [];
@@ -175,29 +152,34 @@
                 reader.onload = () => resolve({ name: file.name, type: file.type, base64: reader.result.split(',')[1] });
             });
 
-            const inputs = document.querySelectorAll('input[type="file"]');
-            for (const input of inputs) { if (input.files[0]) filesArray.push(await readFile(input.files[0])); }
+            for (const input of document.querySelectorAll('input[type="file"]')) { if (input.files[0]) filesArray.push(await readFile(input.files[0])); }
 
             const dataObj = { Unique_ID: masterID, Selected_Service: document.getElementById('hiddenServiceName').value, filesArray: filesArray };
             new FormData(document.getElementById('applyForm')).forEach((v, k) => dataObj[k] = v);
 
             try {
-                // Background send
-                fetch(SCRIPT_URL, { method: "POST", mode: "no-cors", body: JSON.stringify(dataObj) });
-                
+                await fetch(SCRIPT_URL, { method: "POST", mode: "no-cors", body: JSON.stringify(dataObj) });
                 document.getElementById('displayUniqueID').innerText = masterID;
                 document.getElementById('waNotifyBtn').onclick = () => window.location.href = `https://api.whatsapp.com/send?phone=918919580315&text=My ID: ${masterID}`;
                 
                 document.getElementById('formModal').classList.remove('active');
                 document.getElementById('successModal').classList.add('active');
-
-                // Trigger App
                 window.location.assign(document.getElementById('payBtn').href);
-            } catch (e) { alert("Error! Check Connection."); submitBtn.disabled = false; }
+            } catch (e) { alert("Submission failed! Try again."); submitBtn.disabled = false; }
         }
 
-        function closeForm() { document.getElementById('formModal').classList.remove('active'); }
-        function closeSuccess() { document.getElementById('successModal').classList.remove('active'); }
+        function closeForm() { 
+            document.getElementById('formModal').classList.remove('active');
+            if(history.state && history.state.modal) history.back();
+        }
+        function closeSuccess() { document.getElementById('successModal').classList.remove('active'); location.reload(); }
+
+        window.onpopstate = function(event) {
+            if (document.getElementById('formModal').classList.contains('active')) {
+                document.getElementById('formModal').classList.remove('active');
+            }
+        };
+
         function renderGrid() {
             const grid = document.getElementById('general-grid');
             grid.innerHTML = Object.keys(services).filter(k => k !== 'agent_reg').map(id => {
