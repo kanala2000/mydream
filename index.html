@@ -32,7 +32,7 @@
                 <img src="https://i.postimg.cc/W1zjssrk/LOGO.jpg" alt="MyDream Logo" class="h-10 w-auto rounded-lg shadow-sm">
                 <span class="text-[10px] font-bold text-gray-400 border-l pl-2 uppercase">Digital SERVICES</span>
             </div>
-            <button onclick="window.open('https://wa.me/918919580315', '_blank')" class="text-[10px] font-bold text-green-600 border border-green-200 px-3 py-2 rounded-lg hover:bg-green-50 uppercase whitespace-nowrap">WhatsApp Care 🟢</button>
+            <button onclick="window.location.href='https://wa.me/918919580315'" class="text-[10px] font-bold text-white bg-green-600 px-4 py-2 rounded-lg hover:bg-green-700 uppercase whitespace-nowrap shadow-md">WhatsApp Support 🟢</button>
         </div>
     </header>
 
@@ -74,7 +74,6 @@
 
                 <div id="formSection" class="md:w-7/12 p-6 md:p-10">
                     <h3 id="modalTitle" class="text-xl md:text-2xl font-black text-slate-900 mb-6 uppercase">Service Form</h3>
-                    
                     <div id="panImages" class="hidden grid grid-cols-2 gap-4 mb-6">
                         <div class="text-center"><p class="text-[8px] font-bold">Emergency</p><img src="https://i.postimg.cc/4dpSXcnz/download.jpg" class="h-20 w-full object-cover rounded-lg border"></div>
                         <div class="text-center"><p class="text-[8px] font-bold">Manual</p><img src="https://i.postimg.cc/KztHmT4P/sinp.jpg" class="h-20 w-full object-cover rounded-lg border"></div>
@@ -119,9 +118,9 @@
         const services = {
             "pan": { name: "PAN Card (New/Correction)", price: 250, icon: "🛡️", fields: [{n: "Type", p: "New/Correction", s: ["New PAN", "Correction"]}, {n: "Speed", p: "Speed", s: ["Manual (3Days)", "Emergency (2Hrs)"]}, {n: "Name", p: "Name"}, {n: "Father", p: "Father Name"}, {n: "DOB", p: "DOB", t: "date"}, {n: "Mobile", p: "Mobile"}], files: ["Aadhar", "Photo", "Sign", "Payment Receipt"] },
             "voter": { name: "Voter Card (New/Correction)", price: 100, icon: "🗳️", fields: [{n: "Type", p: "New/Correction", s: ["New Voter", "Correction"]}, {n: "Name", p: "Full Name"}, {n: "DOB", p: "DOB", t: "date"}, {n: "Mobile", p: "Mobile"}], files: ["Aadhar", "Photo", "Sign", "Payment Receipt"] },
-            "udyam": { name: "Udyam Registration", price: 300, icon: "🏢", fields: [{n: "Business_Name", p: "Business Name"}, {n: "Mobile", p: "Mobile"}], files: ["Aadhar", "Pan", "Payment Receipt"] },
+            "udyam": { name: "Udyam Registration", price: 300, icon: "🏢", fields: [{n: "Business_Name", p: "Business Name"}, {n: "Proprietor_Name", p: "Owner Name"}, {n: "DOB", p: "Owner DOB", t: "date"}, {n: "Aadhar_Number", p: "12 Digit Aadhar"}, {n: "Mobile", p: "Mobile"}], files: ["Aadhar", "Pan", "Payment Receipt"] },
             "pvc": { name: "PVC Card Print", price: 100, icon: "💳", fields: [{n: "Name", p: "Card Name"}, {n: "Address", p: "Full Address"}], files: ["PDF_File", "Payment Receipt"] },
-            "print_service": { name: "Print & Delivery", price: 30, icon: "📦", fields: [{n: "Name", p: "Name"}, {n: "Pages", p: "Pages (Min 20)", t: "number", id: "pgCount", oninput: "calcPrint()"}, {n: "Address", p: "Full Delivery Address"}], files: ["PDF_File", "Payment Receipt"] },
+            "print_service": { name: "Print & Delivery", price: 30, icon: "📦", fields: [{n: "Name", p: "Name"}, {n: "Mobile", p: "Mobile Number"}, {n: "Pages", p: "Total Pages (Min 20)", t: "number", id: "pgCount", oninput: "calcPrint()"}, {n: "Address", p: "Full Delivery Address"}], files: ["PDF_File", "Payment Receipt"] },
             "track": { name: "Track Application", price: 0, icon: "🔍", fields: [], files: [] },
             "agent_reg": { name: "Agent Registration", price: 100, icon: "🔑", fields: [{n: "Name", p: "Name"}, {n: "Phone", p: "Phone"}], files: ["Receipt"] }
         };
@@ -131,7 +130,7 @@
             let rate = pages > 100 ? 2.5 : 3;
             let total = (pages * rate) + 30;
             document.getElementById('priceSpan').innerText = pages >= 20 ? total : 0;
-            document.getElementById('priceInfo').innerText = `Rate: ₹${rate}/page (Above 100: ₹2.5, 20-100: ₹3) + ₹30 Delivery`;
+            document.getElementById('priceInfo').innerText = `Rate: ₹${rate}/page + ₹30 Delivery`;
             document.getElementById('payBtn').href = `upi://pay?pa=raja891958@ybl&pn=MyDream&am=${total}&cu=INR`;
         }
 
@@ -199,19 +198,18 @@
             try {
                 await fetch(SCRIPT_URL, { method: "POST", mode: "no-cors", body: JSON.stringify(dataObj) });
                 document.getElementById('displayUniqueID').innerText = masterID;
-                document.getElementById('waNotifyBtn').onclick = () => window.open(`https://wa.me/918919580315?text=My ID: ${masterID}`, '_blank');
+                document.getElementById('waNotifyBtn').onclick = () => window.location.href = `https://wa.me/918919580315?text=My ID: ${masterID}`;
                 
                 document.getElementById('formModal').classList.remove('active');
                 document.getElementById('successModal').classList.add('active');
-                window.location.href = document.getElementById('payBtn').href;
+                window.location.assign(document.getElementById('payBtn').href);
             } catch (e) { alert("Sync Error!"); submitBtn.disabled = false; }
         }
 
         function closeForm() { document.getElementById('formModal').classList.remove('active'); }
         function renderGrid() {
             const grid = document.getElementById('general-grid');
-            grid.innerHTML = Object.keys(services).map(id => {
-                if(id === 'agent_reg') return "";
+            grid.innerHTML = Object.keys(services).filter(k => k !== 'agent_reg').map(id => {
                 const s = services[id];
                 return `<div class="service-card p-6 flex flex-col items-center text-center shadow-sm" onclick="openForm('${id}')"><div class="text-3xl mb-3">${s.icon}</div><h4 class="font-bold text-[10px] uppercase h-8 flex items-center">${s.name}</h4><p class="text-red-600 font-black text-sm mt-2">₹${s.price}</p></div>`;
             }).join('');
