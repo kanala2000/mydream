@@ -10,7 +10,6 @@
         body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f8fafc; overflow-x: hidden; }
         .service-card { transition: all 0.3s ease; border: 1px solid #e2e8f0; cursor: pointer; background: white; border-radius: 12px; }
         .service-card:hover { transform: translateY(-8px); border-color: #ef4444; box-shadow: 0 15px 30px -10px rgba(0,0,0,0.1); }
-        .error-msg { background-color: #fee2e2; color: #b91c1c; padding: 8px 12px; border-radius: 4px; font-size: 10px; margin-top: 4px; display: none; }
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 100; align-items: center; justify-content: center; padding: 10px; }
         .modal.active { display: flex; }
         @keyframes scrollText { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
@@ -32,29 +31,17 @@
                 <img src="https://i.postimg.cc/W1zjssrk/LOGO.jpg" alt="MyDream Logo" class="h-10 w-auto rounded-lg shadow-sm">
                 <span class="text-[10px] font-bold text-gray-400 border-l pl-2 uppercase">Digital SERVICES</span>
             </div>
-            <button onclick="window.location.href='https://wa.me/918919580315'" class="text-[10px] font-bold text-white bg-green-600 px-4 py-2 rounded-lg hover:bg-green-700 uppercase whitespace-nowrap shadow-md">WhatsApp Support 🟢</button>
+            <button onclick="window.location.href='https://api.whatsapp.com/send?phone=918919580315'" class="bg-green-600 text-white px-4 py-2 rounded-lg text-[10px] font-bold uppercase shadow-md">WhatsApp Support 🟢</button>
         </div>
     </header>
 
     <main class="container mx-auto mt-6 px-4 pb-10">
-        <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded-r-xl flex flex-col md:flex-row justify-between items-center gap-4 shadow-sm mb-6">
-            <div class="flex items-center space-x-3">
-                <span class="text-xl">📸</span>
-                <div>
-                    <p class="text-[10px] font-black uppercase text-yellow-700">Image Size Guide</p>
-                    <p class="text-xs font-bold text-slate-700">If your image > 2MB, Please reduce and upload.</p>
-                </div>
-            </div>
-            <a href="https://www.iloveimg.com/resize-image" target="_blank" class="bg-slate-900 text-white px-6 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest hover:bg-yellow-500 transition-all">Reduce Image Size ✂️</a>
-        </div>
-
-        <h2 class="bg-slate-900 text-white py-3 px-6 text-sm md:text-lg font-black rounded-t-xl text-center uppercase tracking-widest italic mb-6">General Services</h2>
+        <h2 class="bg-slate-900 text-white py-3 px-6 text-sm font-black rounded-t-xl text-center uppercase tracking-widest italic mb-6">General Services</h2>
         <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-12" id="general-grid"></div>
         
         <div class="bg-blue-50 border border-blue-100 p-8 rounded-3xl text-center mb-10 shadow-sm max-w-4xl mx-auto">
-            <h3 class="text-xl font-black text-blue-900 mb-2 uppercase">Become a PAN Agent</h3>
-            <p class="text-slate-500 text-xs mb-6 font-medium">Start your own Digital PAN Seva business!</p>
-            <button onclick="openForm('agent_reg')" class="bg-blue-800 text-white px-10 py-3 rounded-xl font-bold uppercase shadow-lg hover:bg-blue-900 transition active:scale-95">Register Now</button>
+            <h3 class="text-xl font-black text-blue-900 mb-2 uppercase tracking-tight">Become a PAN Agent</h3>
+            <button onclick="openForm('agent_reg')" class="bg-blue-800 text-white px-10 py-3 rounded-xl font-bold uppercase shadow-lg hover:bg-blue-900 transition">Register Now</button>
         </div>
     </main>
 
@@ -68,12 +55,12 @@
                         <img src="https://i.postimg.cc/d3JSJL8m/Whats-App-Image-2026-03-20-at-1-18-04-PM.jpg" class="w-32 h-32 md:w-48 md:h-48 object-contain">
                     </div>
                     <p class="text-3xl md:text-4xl font-black">₹<span id="priceSpan">0</span></p>
-                    <p id="priceInfo" class="text-[10px] text-slate-400 mt-2 font-bold"></p>
-                    <a id="payBtn" href="#" class="text-[10px] font-bold bg-blue-600 px-8 py-3 rounded-full inline-block mt-4 uppercase hover:bg-blue-700 transition">Pay via App 📱</a>
+                    <p id="priceInfo" class="text-[10px] text-slate-400 mt-2 font-bold italic"></p>
+                    <a id="payBtn" href="#" class="text-[10px] font-bold bg-blue-600 px-8 py-3 rounded-full inline-block mt-4 uppercase hover:bg-blue-700 transition active:scale-95">Pay via App 📱</a>
                 </div>
 
                 <div id="formSection" class="md:w-7/12 p-6 md:p-10">
-                    <h3 id="modalTitle" class="text-xl md:text-2xl font-black text-slate-900 mb-6 uppercase">Service Form</h3>
+                    <h3 id="modalTitle" class="text-xl md:text-2xl font-black text-slate-900 mb-6 uppercase italic">Service Form</h3>
                     <div id="panImages" class="hidden grid grid-cols-2 gap-4 mb-6">
                         <div class="text-center"><p class="text-[8px] font-bold">Emergency</p><img src="https://i.postimg.cc/4dpSXcnz/download.jpg" class="h-20 w-full object-cover rounded-lg border"></div>
                         <div class="text-center"><p class="text-[8px] font-bold">Manual</p><img src="https://i.postimg.cc/KztHmT4P/sinp.jpg" class="h-20 w-full object-cover rounded-lg border"></div>
@@ -92,8 +79,7 @@
                         <div id="dynamicFields" class="grid grid-cols-1 gap-4"></div>
                         <div id="correctionFields" class="space-y-4"></div>
                         <div id="uploadContainer" class="grid grid-cols-2 gap-3 pt-4 border-t"></div>
-                        <div id="formErr" class="error-msg text-center font-bold italic">Please fill all fields!</div>
-                        <button type="submit" id="submitBtn" class="w-full bg-red-600 text-white py-4 rounded-xl font-black uppercase tracking-widest shadow-xl mt-4">Pay & Submit📤</button>
+                        <button type="submit" id="submitBtn" class="w-full bg-red-600 text-white py-4 rounded-xl font-black uppercase tracking-widest shadow-xl active:scale-95 mt-4">Pay & Submit📤</button>
                     </form>
                 </div>
             </div>
@@ -108,7 +94,7 @@
                 <p id="displayUniqueID" class="text-2xl font-black text-blue-600 tracking-tighter">MD-000000</p>
             </div>
             <button id="waNotifyBtn" class="w-full bg-green-500 text-white py-3 rounded-xl font-black text-xs mb-3 shadow-lg">WhatsApp ID 📱</button>
-            <button onclick="location.reload()" class="w-full bg-slate-900 text-white py-3 rounded-xl font-bold text-xs uppercase">Done</button>
+            <button onclick="closeSuccess()" class="w-full bg-slate-900 text-white py-3 rounded-xl font-bold text-xs uppercase">Done</button>
         </div>
     </div>
 
@@ -116,11 +102,11 @@
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzZMNWtjQBAtWSgEO8--PKRsDAqoac-h_R5-_DwiSt-S6yiTNEcP2mkbrTFAX89Zako/exec";
 
         const services = {
-            "pan": { name: "PAN Card (New/Correction)", price: 250, icon: "🛡️", fields: [{n: "Type", p: "New/Correction", s: ["New PAN", "Correction"]}, {n: "Speed", p: "Speed", s: ["Manual (3Days)", "Emergency (2Hrs)"]}, {n: "Name", p: "Name"}, {n: "Father", p: "Father Name"}, {n: "DOB", p: "DOB", t: "date"}, {n: "Mobile", p: "Mobile"}], files: ["Aadhar", "Photo", "Sign", "Payment Receipt"] },
-            "voter": { name: "Voter Card (New/Correction)", price: 100, icon: "🗳️", fields: [{n: "Type", p: "New/Correction", s: ["New Voter", "Correction"]}, {n: "Name", p: "Full Name"}, {n: "DOB", p: "DOB", t: "date"}, {n: "Mobile", p: "Mobile"}], files: ["Aadhar", "Photo", "Sign", "Payment Receipt"] },
-            "udyam": { name: "Udyam Registration", price: 300, icon: "🏢", fields: [{n: "Business_Name", p: "Business Name"}, {n: "Proprietor_Name", p: "Owner Name"}, {n: "DOB", p: "Owner DOB", t: "date"}, {n: "Aadhar_Number", p: "12 Digit Aadhar"}, {n: "Mobile", p: "Mobile"}], files: ["Aadhar", "Pan", "Payment Receipt"] },
-            "pvc": { name: "PVC Card Print", price: 100, icon: "💳", fields: [{n: "Name", p: "Card Name"}, {n: "Address", p: "Full Address"}], files: ["PDF_File", "Payment Receipt"] },
-            "print_service": { name: "Print & Delivery", price: 30, icon: "📦", fields: [{n: "Name", p: "Name"}, {n: "Mobile", p: "Mobile Number"}, {n: "Pages", p: "Total Pages (Min 20)", t: "number", id: "pgCount", oninput: "calcPrint()"}, {n: "Address", p: "Full Delivery Address"}], files: ["PDF_File", "Payment Receipt"] },
+            "pan": { name: "PAN Card (New/Correction)", price: 250, icon: "🛡️", fields: [{n: "Type", p: "New/Correction", s: ["New PAN", "Correction"]}, {n: "Speed", p: "Speed", s: ["Manual (3Days)", "Emergency (2Hrs)"]}, {n: "Name", p: "Name"}, {n: "Father", p: "Father Name"}, {n: "DOB", p: "Date of Birth", t: "date"}, {n: "Mobile", p: "Mobile"}], files: ["Aadhar", "Photo", "Sign", "Payment Receipt"] },
+            "voter": { name: "Voter Card (New/Correction)", price: 100, icon: "🗳️", fields: [{n: "Type", p: "New/Correction", s: ["New Voter", "Correction"]}, {n: "Name", p: "Full Name"}, {n: "DOB", p: "Date of Birth", t: "date"}, {n: "Mobile", p: "Mobile"}], files: ["Aadhar", "Photo", "Sign", "Payment Receipt"] },
+            "udyam": { name: "Udyam Registration", price: 300, icon: "🏢", fields: [{n: "Business_Name", p: "Business Name"}, {n: "Business_Type", p: "Business Type", s: ["Proprietorship", "Partnership", "Others"]}, {n: "Proprietor_Name", p: "Owner Name"}, {n: "DOB", p: "Owner DOB", t: "date"}, {n: "Aadhar_Number", p: "12 Digit Aadhar"}, {n: "Mobile", p: "Mobile"}], files: ["Aadhar", "Pan", "Payment Receipt"] },
+            "pvc": { name: "PVC Card Print", price: 100, icon: "💳", fields: [{n: "Name", p: "Card Name"}, {n: "Mobile", p: "Mobile"}, {n: "Address", p: "Full Address"}], files: ["PDF_File", "Payment Receipt"] },
+            "print_service": { name: "Print & Delivery", price: 30, icon: "📦", fields: [{n: "Name", p: "Name"}, {n: "Mobile", p: "Mobile"}, {n: "Pages", p: "Total Pages (Min 20)", t: "number", id: "pgCount", oninput: "calcPrint()"}, {n: "Address", p: "Full Delivery Address"}], files: ["PDF_File", "Payment Receipt"] },
             "track": { name: "Track Application", price: 0, icon: "🔍", fields: [], files: [] },
             "agent_reg": { name: "Agent Registration", price: 100, icon: "🔑", fields: [{n: "Name", p: "Name"}, {n: "Phone", p: "Phone"}], files: ["Receipt"] }
         };
@@ -136,7 +122,7 @@
 
         function handleCorrection(id, val) {
             const container = document.getElementById('correctionFields');
-            container.innerHTML = (val === "Correction") ? `<input type="text" name="Existing_ID" placeholder="Existing PAN/Voter Number" required class="w-full p-3 border rounded-xl text-xs"><input type="text" name="Correction_Details" placeholder="What to update?" required class="w-full p-3 border-2 border-orange-200 rounded-xl text-xs">` : "";
+            container.innerHTML = (val === "Correction") ? `<input type="text" name="Existing_ID" placeholder="Existing ID Number" required class="w-full p-3 border rounded-xl text-xs"><input type="text" name="Update_What" placeholder="What to update?" required class="w-full p-3 border-2 border-orange-200 rounded-xl text-xs">` : "";
         }
 
         function openForm(id) {
@@ -144,6 +130,7 @@
             document.getElementById('modalTitle').innerText = s.name;
             document.getElementById('hiddenServiceName').value = s.name;
             document.getElementById('priceSpan').innerText = s.price;
+            document.getElementById('priceInfo').innerText = "";
             document.getElementById('payBtn').href = `upi://pay?pa=raja891958@ybl&pn=MyDream&am=${s.price}&cu=INR`;
             
             document.getElementById('panImages').classList.toggle('hidden', id !== 'pan');
@@ -152,10 +139,12 @@
             document.getElementById('paymentSidebar').classList.toggle('hidden', id === 'track');
 
             document.getElementById('dynamicFields').innerHTML = s.fields.map(f => {
+                let label = f.t === "date" ? `<p class="text-[8px] font-bold text-slate-400 uppercase mb-1">${f.p}</p>` : "";
                 let attr = `name="${f.n}" placeholder="${f.p}" required class="w-full p-3 border rounded-xl text-xs outline-none focus:border-red-600"`;
                 if(f.id) attr += ` id="${f.id}"`;
                 if(f.oninput) attr += ` oninput="${f.oninput}"`;
-                return f.s ? `<select ${attr} onchange="handleCorrection('${id}', this.value)">${f.s.map(opt => `<option value="${opt}">${opt}</option>`).join('')}</select>` : `<input type="${f.t || 'text'}" ${attr}>`;
+                let input = f.s ? `<select ${attr} onchange="handleCorrection('${id}', this.value)">${f.s.map(opt => `<option value="${opt}">${opt}</option>`).join('')}</select>` : `<input type="${f.t || 'text'}" ${attr}>`;
+                return `<div>${label}${input}</div>`;
             }).join('');
             
             document.getElementById('uploadContainer').innerHTML = s.files.map(file => `<div class="p-3 border rounded-xl bg-slate-50 text-center"><p class="text-[8px] font-black uppercase text-slate-400">${file}</p><input type="file" required class="text-[8px] w-full"></div>`).join('');
@@ -165,48 +154,50 @@
         async function fetchStatus() {
             const id = document.getElementById('trackIDInput').value.trim();
             if(!id) return alert("Enter ID!");
-            document.getElementById('trackBtn').innerText = "Searching... 📡";
             try {
                 const res = await fetch(`${SCRIPT_URL}?trackID=${id}`);
                 const data = await res.json();
                 document.getElementById('statusResult').classList.remove('hidden');
                 document.getElementById('statusText').innerText = data.status === "Not Found" ? "❌ ID NOT FOUND" : "🚀 STATUS: " + data.status;
             } catch (e) { alert("Sync Error!"); }
-            document.getElementById('trackBtn').innerText = "Track Now 🔍";
         }
 
         async function validateForm(event) {
             event.preventDefault();
             const submitBtn = document.getElementById('submitBtn');
             const masterID = "MD-" + Math.floor(Math.random() * 900000 + 100000);
-            submitBtn.innerHTML = "Submitting Data... ⏳";
+            submitBtn.innerHTML = "Syncing with Drive... ⏳";
             submitBtn.disabled = true;
 
             const filesArray = [];
             const readFile = (file) => new Promise((resolve) => {
                 const reader = new FileReader(); reader.readAsDataURL(file);
-                reader.onload = () => resolve({ base64: reader.result.split(',')[1] });
+                reader.onload = () => resolve({ name: file.name, type: file.type, base64: reader.result.split(',')[1] });
             });
 
-            for (const input of document.querySelectorAll('input[type="file"]')) { 
-                if (input.files[0]) filesArray.push(await readFile(input.files[0])); 
-            }
+            const inputs = document.querySelectorAll('input[type="file"]');
+            for (const input of inputs) { if (input.files[0]) filesArray.push(await readFile(input.files[0])); }
 
             const dataObj = { Unique_ID: masterID, Selected_Service: document.getElementById('hiddenServiceName').value, filesArray: filesArray };
             new FormData(document.getElementById('applyForm')).forEach((v, k) => dataObj[k] = v);
 
             try {
-                await fetch(SCRIPT_URL, { method: "POST", mode: "no-cors", body: JSON.stringify(dataObj) });
+                // Background send
+                fetch(SCRIPT_URL, { method: "POST", mode: "no-cors", body: JSON.stringify(dataObj) });
+                
                 document.getElementById('displayUniqueID').innerText = masterID;
-                document.getElementById('waNotifyBtn').onclick = () => window.location.href = `https://wa.me/918919580315?text=My ID: ${masterID}`;
+                document.getElementById('waNotifyBtn').onclick = () => window.location.href = `https://api.whatsapp.com/send?phone=918919580315&text=My ID: ${masterID}`;
                 
                 document.getElementById('formModal').classList.remove('active');
                 document.getElementById('successModal').classList.add('active');
+
+                // Trigger App
                 window.location.assign(document.getElementById('payBtn').href);
-            } catch (e) { alert("Sync Error!"); submitBtn.disabled = false; }
+            } catch (e) { alert("Error! Check Connection."); submitBtn.disabled = false; }
         }
 
         function closeForm() { document.getElementById('formModal').classList.remove('active'); }
+        function closeSuccess() { document.getElementById('successModal').classList.remove('active'); }
         function renderGrid() {
             const grid = document.getElementById('general-grid');
             grid.innerHTML = Object.keys(services).filter(k => k !== 'agent_reg').map(id => {
