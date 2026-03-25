@@ -234,7 +234,7 @@
                     <span class="relative flex h-3 w-3"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span><span class="relative inline-flex rounded-full h-3 w-3 bg-blue-500"></span></span>
                     <p id="payStatusLabel" class="text-[10px] font-bold text-blue-600 uppercase tracking-widest">Waiting for Transaction...</p>
                 </div>
-                <p class="text-[9px] text-gray-400 px-10 leading-tight">Please scan the QR using PhonePe, GPay or any UPI App. <b>Do not close</b> this window until successful.</p>
+                <p class="text-[9px] text-gray-400 px-10 leading-tight italic">Scan with PhonePe, GPay or any UPI app. <b>Do not close</b> until verified.</p>
                 <button onclick="document.getElementById('payOverlay').classList.remove('active'); clearInterval(statusInterval); clearInterval(timerInterval);" class="mt-8 text-[10px] text-gray-400 underline uppercase font-bold tracking-tighter">Cancel Transaction</button>
             </div>
 
@@ -318,7 +318,7 @@
     <script>
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwUc9vuQMx1aAmz2YLZiWyZA_xFrhbOMJDPVquGX2AAeh4tylHnq7IcCflhMSnTsS3W/exec";
         const MY_API_KEY = "7498accc-dde8-4fb0-91f1-541f6c8ec3bd";
-        const MERCHANT_VPA = "paytmqr6u5ayr@ptys";
+        const MERCHANT_VPA = "paytmqr281005050101cojk4upnbarx@paytm";
         let statusInterval;
         let timerInterval;
         let lastSubmittedData = {};
@@ -343,7 +343,7 @@
         const services = {
             "pan": { name: "PAN Card (New/Correction)", price: 250, icon: "🛡️", fields: [{n: "Type", p: "New/Correction", s: ["New PAN", "Correction"]}, {n: "Speed", p: "Speed", s: ["Manual (3Days)", "Emergency (2Hrs)"]}, {n: "Name", p: "Full Name"}, {n: "Father", p: "Father Name"}, {n: "DOB", p: "Date of Birth", t: "date"}, {n: "Mobile", p: "Mobile"}, {n: "Aadhar", p: "Aadhar Number"}], files: ["Aadhar", "Photo", "Sign", "Payment Receipt"] },
             "voter": { name: "Voter Card (New/Correction)", price: 100, icon: "🗳️", fields: [{n: "Type", p: "New/Correction", s: ["New Voter", "Correction"]}, {n: "Name", p: "Full Name"}, {n: "DOB", p: "Date of Birth", t: "date"}, {n: "Mobile", p: "Mobile"}, {n: "Aadhar", p: "Aadhar Number"}], files: ["Aadhar", "Photo", "Payment Receipt"] },
-            "loan_assist": { name: "Loan Assistance", price: 0, icon: "💰", fields: [{n: "Name", p: "Full Name"}, {n: "Loan_Type", p: "Loan Type", s: ["Personal Loan", "Home Loan", "Gold Loan", "Vehicle Loan"]}, {n: "Amount", p: "Required Amount"}, {n: "Mobile", p: "Mobile Number"}], files: [] },
+            "loan_assist": { name: "Loan Assistance", price: 0, icon: "💰", fields: [{n: "Name", p: "Full Name"}, {n: "Loan_Type", p: "Loan Type", s: ["Personal Loan", "Home Loan"]}, {n: "Amount", p: "Required Amount"}, {n: "Mobile", p: "Mobile Number"}], files: [] },
             "udyam": { name: "Udyam Registration", price: 300, icon: "🏢", fields: [{n: "Business_Name", p: "Business Name"}, {n: "Owner_Name", p: "Business Type "}, {n: "Mobile", p: "Mobile"}, {n: "Aadhar", p: "12 Digit Aadhar"}], files: ["Aadhar", "Pan", "Payment Receipt"] },
             "pvc": { name: "PVC Card Print", price: 100, icon: "💳", fields: [{n: "Name", p: "Card Name"}, {n: "Mobile", p: "Mobile"}, {n: "Address", p: "Full Address"}], files: ["PDF_File", "Payment Receipt"] },
             "print_service": { name: "Print & Delivery", price: 30, icon: "📦", fields: [{n: "Name", p: "Customer Name"}, {n: "Mobile", p: "Mobile"}, {n: "Pages", p: "Pages (Min 20)", t: "number", id: "pgCount", oninput: "calcPrint()"}, {n: "Address", p: "Delivery Address"}], files: ["PDF_File", "Payment Receipt"] },
@@ -365,16 +365,13 @@
             let duration = 300; 
             const display = document.getElementById('payTimer');
             if(timerInterval) clearInterval(timerInterval);
-            
             timerInterval = setInterval(() => {
-                let minutes = Math.floor(duration / 60);
-                let seconds = duration % 60;
-                display.innerText = `${minutes < 10 ? '0'+minutes : minutes}:${seconds < 10 ? '0'+seconds : seconds}`;
+                let mins = Math.floor(duration / 60);
+                let secs = duration % 60;
+                display.innerText = `${mins < 10 ? '0'+mins : mins}:${secs < 10 ? '0'+secs : secs}`;
                 if (--duration < 0) {
-                    clearInterval(timerInterval);
-                    clearInterval(statusInterval);
-                    alert("Session Expired. Please try again.");
-                    document.getElementById('payOverlay').classList.remove('active');
+                    clearInterval(timerInterval); clearInterval(statusInterval);
+                    alert("Session Expired!"); document.getElementById('payOverlay').classList.remove('active');
                 }
             }, 1000);
         }
@@ -382,15 +379,17 @@
         async function startPolling(orderId) {
             const label = document.getElementById('payStatusLabel');
             if(statusInterval) clearInterval(statusInterval);
-
             statusInterval = setInterval(async () => {
                 try {
-                    const res = await fetch(`https://api.upigateway.com/v1/check-status?api_key=${MY_API_KEY}&order_id=${orderId}`);
+                    const res = await fetch(`https://api.ekqr.in/api/check_order_status`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ key: MY_API_KEY, client_txn_id: orderId })
+                    });
                     const result = await res.json();
-                    if (result.status === "COMPLETED" || result.status === "SUCCESS") {
-                        clearInterval(statusInterval);
-                        clearInterval(timerInterval);
-                        label.innerText = "✅ PAYMENT SUCCESS! SUBMITTING...";
+                    if (result.status === true && (result.data.status === "COMPLETED" || result.data.status === "SUCCESS")) {
+                        clearInterval(statusInterval); clearInterval(timerInterval);
+                        label.innerText = "✅ PAYMENT VERIFIED! SUBMITTING...";
                         label.classList.replace('text-blue-600', 'text-green-600');
                         await finalSubmit(orderId); 
                     }
@@ -399,9 +398,8 @@
         }
 
         function generateDynamicQR(amount, orderId) {
-            const name = "Sekar Pan Services";
-            const upiLink = `upi://pay?pa=${MERCHANT_VPA}&pn=${encodeURIComponent(name)}&am=${amount}&tr=${orderId}&cu=INR`;
-            const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(upiLink)}`;
+            const upiLink = `upi://pay?pa=${MERCHANT_VPA}&pn=Sekar%20Pan%20Services&am=${parseFloat(amount).toFixed(2)}&tr=${orderId}&cu=INR&tn=${orderId}`;
+            const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(upiLink)}&ecc=M`;
             document.getElementById('dynamicPayQR').src = qrUrl;
         }
 
@@ -442,11 +440,11 @@
 
         function openForm(id) {
             const s = services[id];
+            if(!s) return;
             document.getElementById('modalTitle').innerText = s.name;
             document.getElementById('hiddenServiceName').value = s.name;
             document.getElementById('priceSpan').innerText = s.price;
             document.getElementById('payOverlay').classList.remove('active');
-
             document.getElementById('trackingUI').classList.add('hidden');
             document.getElementById('aadharPortalUI').classList.add('hidden');
             document.getElementById('applyForm').classList.remove('hidden');
@@ -459,6 +457,8 @@
             } else if(id === 'aadhar_portal') {
                 document.getElementById('aadharPortalUI').classList.remove('hidden');
                 document.getElementById('applyForm').classList.add('hidden');
+            } else if(id === 'loan_assist' || id === 'aadhar_slot') {
+                document.getElementById('loanTextInfo').innerText = id === 'aadhar_slot' ? "Bethamcherla Mandal Special Doorstep Service." : "Details will be forwarded to verified partners.";
             }
 
             document.getElementById('dynamicFields').innerHTML = s.fields.map(f => {
@@ -479,7 +479,6 @@
         async function validateForm(event) {
             event.preventDefault();
             const amount = parseInt(document.getElementById('priceSpan').innerText);
-            
             if(amount > 0) {
                 const orderId = "ORD" + Date.now();
                 document.getElementById('payAmountLabel').innerText = amount;
@@ -488,50 +487,28 @@
                 startPolling(orderId);
                 startSessionTimer();
             } else {
-                await finalSubmit("FREE_TRANSACTION");
+                await finalSubmit("FREE");
             }
         }
 
         async function finalSubmit(txnID) {
             const masterID = "MD-" + Math.floor(Math.random() * 900000 + 100000);
             const formData = new FormData(document.getElementById('applyForm'));
-            const dataObj = { 
-                Unique_ID: masterID, 
-                Selected_Service: document.getElementById('hiddenServiceName').value, 
-                UTR_Number: txnID,
-                Referral_Code: document.getElementById('referral_code').value || ""
-            };
-            
-            formData.forEach((value, key) => { dataObj[key] = value; });
-
-            lastSubmittedData = {
-                id: masterID,
-                name: dataObj.Name || dataObj.Owner_Name || "Customer",
-                service: dataObj.Selected_Service,
-                mobile: dataObj.Mobile || "N/A",
-                amount: document.getElementById('priceSpan').innerText,
-                date: new Date().toLocaleString()
-            };
-
+            const dataObj = { Unique_ID: masterID, Selected_Service: document.getElementById('hiddenServiceName').value, UTR_Number: txnID, Referral_Code: document.getElementById('referral_code').value || "" };
+            formData.forEach((v, k) => { dataObj[k] = v; });
+            lastSubmittedData = { id: masterID, name: dataObj.Name || dataObj.Owner_Name || "Customer", service: dataObj.Selected_Service, mobile: dataObj.Mobile || "N/A", amount: document.getElementById('priceSpan').innerText, date: new Date().toLocaleString('en-IN') };
             document.getElementById('displayUniqueID').innerText = masterID;
             document.getElementById('payOverlay').classList.remove('active');
             document.getElementById('formModal').classList.remove('active');
             document.getElementById('successModal').classList.add('active');
-
             const filesArray = [];
-            const readFile = (file) => new Promise((res) => {
-                const r = new FileReader(); r.onload = () => res({ name: file.name, type: file.type, base64: r.result.split(',')[1] }); r.readAsDataURL(file);
-            });
+            const readFile = (file) => new Promise((res) => { const r = new FileReader(); r.onload = () => res({ name: file.name, type: file.type, base64: r.result.split(',')[1] }); r.readAsDataURL(file); });
             const inputs = document.querySelectorAll('input[type="file"]');
-            for (const input of inputs) { if (input.files[0]) filesArray.push(await readFile(input.files[0])); }
+            for (const i of inputs) { if (i.files[0]) filesArray.push(await readFile(i.files[0])); }
             dataObj.filesArray = filesArray;
-
-            fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify(dataObj) }).catch(e => console.error(e));
-            
+            fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify(dataObj) });
             let msg = `*--- 🚨 NEW ORDER 🚨 ---*\n\nID: ${masterID}\nService: ${dataObj.Selected_Service}\nPayment: Verified ✅`;
-            document.getElementById('waNotifyBtn').onclick = () => { 
-                window.location.href = `https://wa.me/918919580315?text=${encodeURIComponent(msg)}`; 
-            };
+            document.getElementById('waNotifyBtn').onclick = () => { window.location.href = `https://wa.me/918919580315?text=${encodeURIComponent(msg)}`; };
         }
 
         function downloadInvoice() {
@@ -543,7 +520,6 @@
             document.getElementById('invService').innerText = lastSubmittedData.service;
             document.getElementById('invAmount').innerText = "₹" + lastSubmittedData.amount;
             document.getElementById('invTotal').innerText = "₹" + lastSubmittedData.amount;
-            
             getBase64Image(document.getElementById('invoiceLogo').src, function(base64Logo) {
                 const element = template.cloneNode(true);
                 element.style.position = "static"; element.style.left = "0";
@@ -554,57 +530,28 @@
         async function fetchStatus() {
             const id = document.getElementById('trackIDInput').value.trim();
             if(!id) return;
-            const btn = document.getElementById('trackBtn'); btn.innerText = "⏳";
             try {
                 const res = await fetch(`${SCRIPT_URL}?trackID=${id}`);
                 const data = await res.json();
                 document.getElementById('statusResult').classList.remove('hidden');
                 document.getElementById('statusText').innerText = "STATUS: " + data.status;
             } catch(e) { alert("Error checking status."); }
-            finally { btn.innerText = "Check Status"; }
         }
 
         function quickTrack() { const id = document.getElementById('headerTrackInput').value.trim(); if(id) { openForm('track'); document.getElementById('trackIDInput').value = id; fetchStatus(); } }
-        function closeForm() { 
-            document.getElementById('formModal').classList.remove('active'); 
-            clearInterval(statusInterval);
-            clearInterval(timerInterval);
-        }
-        function showLegal(type) { 
-            document.getElementById('legalTitle').innerText = legalData[type].t;
-            document.getElementById('legalText').innerText = legalData[type].m;
-            document.getElementById('legalModal').classList.add('active');
-        }
+        function closeForm() { document.getElementById('formModal').classList.remove('active'); clearInterval(statusInterval); clearInterval(timerInterval); }
+        function showLegal(type) { document.getElementById('legalTitle').innerText = legalData[type].t; document.getElementById('legalText').innerText = legalData[type].m; document.getElementById('legalModal').classList.add('active'); }
         function closeLegal() { document.getElementById('legalModal').classList.remove('active'); }
-        function calcPrint() { const pages = parseInt(document.getElementById('pgCount')?.value) || 0; let total = (pages * 2.5) + 30; document.getElementById('priceSpan').innerText = pages >= 20 ? total : 0; }
+        function calcPrint() { const pg = parseInt(document.getElementById('pgCount')?.value) || 0; let tot = (pg * 2.5) + 30; document.getElementById('priceSpan').innerText = pg >= 20 ? tot : 0; }
 
         function renderGrid() {
             const grid = document.getElementById('general-grid');
-            grid.className = "space-y-8"; 
-            const categories = {
-                "Government Portals": ["pan", "voter", "udyam", "aadhar_slot", "aadhar_portal"],
-                "Financial Services": ["loan_assist"],
-                "Print & Delivery": ["pvc", "print_service"]
-            };
-
-            let html = "";
-            for (const [title, serviceKeys] of Object.entries(categories)) {
-                html += `<h3 class="category-title">${title}</h3>`;
-                html += `<div class="grid grid-cols-2 md:grid-cols-4 gap-4">`;
-                serviceKeys.forEach(id => {
-                    const s = services[id];
-                    if(s) {
-                        html += `
-                        <div class="service-card" onclick="openForm('${id}')">
-                            <div class="text-3xl mb-4">${s.icon}</div>
-                            <h4 class="font-bold text-[10px] uppercase text-gray-700 h-8 flex items-center justify-center">${s.name}</h4>
-                            <p class="text-[#B12704] font-bold text-sm mt-3">${s.price === 0 ? 'FREE' : '₹'+s.price}</p>
-                        </div>`;
-                    }
-                });
-                html += `</div>`;
-            }
-            grid.innerHTML = html;
+            grid.className = "grid grid-cols-2 md:grid-cols-4 gap-4 space-y-0"; 
+            const categories = ["pan", "voter", "udyam", "aadhar_slot", "aadhar_portal", "loan_assist", "pvc", "print_service"];
+            grid.innerHTML = categories.map(id => {
+                const s = services[id];
+                return `<div class="service-card" onclick="openForm('${id}')"><div class="text-3xl mb-4">${s.icon}</div><h4 class="font-bold text-[10px] uppercase text-gray-700 h-8 flex items-center justify-center">${s.name}</h4><p class="text-[#B12704] font-bold text-sm mt-3">${s.price === 0 ? 'FREE' : '₹'+s.price}</p></div>`;
+            }).join('');
         }
         renderGrid();
     </script>
