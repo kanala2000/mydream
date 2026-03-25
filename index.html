@@ -57,6 +57,10 @@
         
         /* 🔥 CATEGORY TITLE STYLING 🔥 */
         .category-title { font-size: 1.1rem; font-weight: 800; color: #232f3e; margin: 2rem 0 1rem 0; border-left: 5px solid #febd69; padding-left: 10px; text-transform: uppercase; }
+
+        /* 🔥 NEW PAY SCREEN OVERLAY STYLING 🔥 */
+        #payOverlay { display: none; position: absolute; inset: 0; background: white; z-index: 1100; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 20px; }
+        #payOverlay.active { display: flex; }
     </style>
 </head>
 <body>
@@ -217,69 +221,60 @@
     </main>
 
     <div id="formModal" class="modal">
-        <div class="modal-content">
-            <div class="flex flex-col md:flex-row overflow-y-auto w-full">
-                <div id="paymentSidebar" class="md:w-5/12 bg-[#f3f3f3] p-8 text-center border-r border-gray-200">
-                    <div id="qrSection">
-                        <p class="text-[10px] font-bold text-blue-600 uppercase mb-4 tracking-widest">Scan to Pay via PhonePe/GPay/Any UPI</p>
-                        <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-300 inline-block mb-4 overflow-hidden">
-                            <img id="qrImage" src="" class="w-40 h-40 md:w-52 md:h-52 object-contain" onclick="zoomUpdateImage(this.src)">
-                        </div>
-
-                        <div id="paymentStatusBox" class="mt-4 p-3 rounded-lg border border-blue-200 bg-blue-50 text-center">
-                            <p id="utrWarning" class="text-[10px] font-bold text-blue-600 uppercase animate-pulse">⌛ Waiting for Payment...</p>
-                        </div>
-                    </div>
-                    <div id="loanNote" class="hidden py-6 text-center">
-                        <p class="text-xs font-bold text-green-600 uppercase">Service Free</p>
-                        <p id="loanTextInfo" class="text-[10px] text-gray-500 mt-2 italic">Official UIDAI charges may apply during visit.</p>
-                    </div>
-                    <p id="feeLabel" class="text-[11px] font-bold text-gray-600 uppercase mb-2 mt-4">Service Fee</p>
-                    <p class="text-5xl font-black text-[#B12704] mb-8">₹<span id="priceSpan">0</span></p>
+        <div class="modal-content relative overflow-hidden">
+            
+            <div id="payOverlay">
+                <h3 class="text-lg font-bold text-gray-800 mb-2 italic">Complete Payment</h3>
+                <p class="text-[10px] text-red-500 font-bold mb-4 uppercase tracking-tighter">⏳ Session Expires in <span id="payTimer">05:00</span></p>
+                <div class="bg-white p-4 rounded-xl border-2 border-dashed border-gray-300 mb-4 shadow-sm">
+                    <img id="dynamicPayQR" src="" class="w-48 h-48 mx-auto rounded">
                 </div>
-                <div id="formSection" class="md:w-7/12 p-8 md:p-12 relative">
-                    <button onclick="closeForm()" class="absolute top-4 right-6 text-3xl font-light text-gray-400 hover:text-black z-[1010]">&times;</button>
-                    <h3 id="modalTitle" class="text-xl font-bold text-gray-900 mb-8 border-b pb-2">Service Form</h3>
+                <p class="text-3xl font-black text-blue-700 mb-2">₹<span id="payAmountLabel">0</span></p>
+                <div class="flex items-center justify-center gap-2 mb-6">
+                    <span class="relative flex h-3 w-3"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span><span class="relative inline-flex rounded-full h-3 w-3 bg-blue-500"></span></span>
+                    <p id="payStatusLabel" class="text-[10px] font-bold text-blue-600 uppercase tracking-widest">Waiting for Transaction...</p>
+                </div>
+                <p class="text-[9px] text-gray-400 px-10 leading-tight">Please scan the QR using PhonePe, GPay or any UPI App. <b>Do not close</b> this window until successful.</p>
+                <button onclick="document.getElementById('payOverlay').classList.remove('active'); clearInterval(statusInterval); clearInterval(timerInterval);" class="mt-8 text-[10px] text-gray-400 underline uppercase font-bold tracking-tighter">Cancel Transaction</button>
+            </div>
+
+            <div class="p-8 md:p-12">
+                <button onclick="closeForm()" class="absolute top-4 right-6 text-3xl font-light text-gray-400 hover:text-black z-[1010]">&times;</button>
+                <h3 id="modalTitle" class="text-xl font-bold text-gray-900 mb-8 border-b pb-2 uppercase tracking-tighter">Service Form</h3>
+                
+                <div id="aadharPortalUI" class="hidden grid grid-cols-1 gap-4 mb-8">
+                    <a href="https://myaadhaar.uidai.gov.in/CheckAadhaarStatus/en" target="_blank" class="amzn-btn-dark p-4 text-center font-bold text-xs uppercase rounded-lg shadow-sm">Check Aadhar Status 🔍</a>
+                    <a href="https://myaadhaar.uidai.gov.in/genricDownloadAadhaar/en" target="_blank" class="amzn-btn p-4 text-center font-bold text-xs uppercase rounded-lg shadow-sm">Download Aadhar ⬇️</a>
+                </div>
+
+                <div id="trackingUI" class="hidden text-center py-10">
+                    <input type="text" id="trackIDInput" placeholder="MD-123456" class="w-full text-center font-bold p-4 mb-6 border">
+                    <button id="trackBtn" onclick="fetchStatus()" class="amzn-btn-dark w-full py-4 text-xs font-bold uppercase">Check Status</button>
+                    <div id="statusResult" class="mt-8 p-6 rounded-lg hidden bg-blue-50 border border-blue-200">
+                        <p id="statusText" class="text-xl font-bold text-blue-700 italic">---</p>
+                    </div>
+                </div>
+
+                <form id="applyForm" onsubmit="validateForm(event)" class="space-y-5">
+                    <input type="hidden" id="hiddenServiceName">
+                    <div id="dynamicFields" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+                    <div id="correctionFields" class="space-y-4"></div>
                     
-                    <div id="aadharPortalUI" class="hidden grid grid-cols-1 gap-4 mb-8">
-                        <a href="https://myaadhaar.uidai.gov.in/CheckAadhaarStatus/en" target="_blank" class="amzn-btn-dark p-4 text-center font-bold text-xs uppercase rounded-lg shadow-sm">Check Aadhar Status 🔍</a>
-                        <a href="https://myaadhaar.uidai.gov.in/genricDownloadAadhaar/en" target="_blank" class="amzn-btn p-4 text-center font-bold text-xs uppercase rounded-lg shadow-sm">Download Aadhar ⬇️</a>
+                    <div class="mt-4">
+                        <p class="text-[10px] font-bold text-gray-500 uppercase mb-1 tracking-widest ml-1">Referral Code (Optional)</p>
+                        <input type="text" id="referral_code" name="Referral_Code" placeholder="Friend's Mobile Number" class="!p-3 text-xs font-bold">
                     </div>
 
-                    <div id="panImages" class="hidden grid grid-cols-2 gap-4 mb-8">
-                        <div class="text-center"><p class="text-[10px] font-bold mb-2">Emergency</p><img src="https://i.postimg.cc/4dpSXcnz/download.jpg" class="h-30 w-full object-cover rounded border"></div>
-                        <div class="text-center"><p class="text-[10px] font-bold mb-2">Manual</p><img src="https://i.postimg.cc/KztHmT4P/sinp.jpg" class="h-30 w-full object-cover rounded border"></div>
+                    <div id="uploadContainer" class="grid grid-cols-2 gap-3 pt-6 border-t"></div>
+                    
+                    <div class="bg-gray-50 p-4 rounded-lg flex justify-between items-center border border-gray-200 shadow-inner">
+                        <span class="text-[10px] font-black text-gray-400 uppercase">Grand Total:</span>
+                        <span class="text-2xl font-black text-[#B12704]">₹<span id="priceSpan">0</span></span>
                     </div>
 
-                    <div id="trackingUI" class="hidden text-center py-10">
-                        <input type="text" id="trackIDInput" placeholder="MD-123456" class="w-full text-center font-bold p-4 mb-6 border">
-                        <button id="trackBtn" onclick="fetchStatus()" class="amzn-btn-dark w-full py-4 text-xs font-bold uppercase">Check Status</button>
-                        <div id="statusResult" class="mt-8 p-6 rounded-lg hidden bg-blue-50 border border-blue-200">
-                            <p id="statusText" class="text-xl font-bold text-blue-700 italic">---</p>
-                            <div id="downloadAction" class="hidden mt-6">
-                                <a id="fileDownloadBtn" href="#" target="_blank" class="bg-green-600 text-white px-8 py-4 rounded-lg font-bold text-xs uppercase shadow-md animate-bounce block text-center">Download Digital Card 📥</a>
-                            </div>
-                        </div>
-                    </div>
-
-                    <form id="applyForm" onsubmit="validateForm(event)" class="space-y-5">
-                        <input type="hidden" id="hiddenServiceName">
-                        <div id="dynamicFields" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
-                        <div id="correctionFields" class="space-y-4"></div>
-                        
-                        <div class="mt-4 text-left">
-                            <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1">Referral Code (Optional)</label>
-                            <div class="relative">
-                                <input type="text" id="referral_code" name="Referral_Code" placeholder="Friend's Mobile Number" class="block w-full border border-gray-300 rounded-md shadow-sm p-3 text-xs focus:ring-1 focus:ring-orange-500 focus:border-orange-500 bg-gray-50 outline-none">
-                            </div>
-                            <p class="text-[9px] text-gray-400 mt-1 italic">🎁 Help friends get benefits by entering their number!</p>
-                        </div>
-
-                        <div id="uploadContainer" class="grid grid-cols-2 gap-3 pt-6 border-t"></div>
-                        
-                        <button type="submit" id="submitBtn" class="amzn-btn-dark w-full py-4 font-bold uppercase text-xs tracking-wider mt-4">Confirm & Pay</button>
-                    </form>
-                </div>
+                    <button type="submit" id="submitBtn" class="amzn-btn-dark w-full py-4 font-bold uppercase text-xs tracking-wider mt-4">Confirm & Pay Securely</button>
+                    <p id="utrWarning" class="text-[9px] text-red-600 font-bold text-center hidden"></p>
+                </form>
             </div>
         </div>
     </div>
@@ -293,7 +288,7 @@
             </div>
             <button onclick="downloadInvoice()" class="bg-orange-500 text-white w-full py-4 rounded-lg font-bold text-xs uppercase mb-3 shadow-lg transition">Download Invoice 📄</button>
             <button id="waNotifyBtn" class="bg-green-600 text-white w-full py-4 rounded-lg font-bold text-xs uppercase mb-4 shadow-lg active:scale-95 transition">WhatsApp Details 📱</button>
-            <button onclick="closeSuccess()" class="text-blue-600 font-medium text-xs hover:underline uppercase">Return to Store</button>
+            <button onclick="location.reload()" class="text-blue-600 font-medium text-xs hover:underline uppercase">Return to Store</button>
         </div>
     </div>
 
@@ -323,7 +318,10 @@
     <script>
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwUc9vuQMx1aAmz2YLZiWyZA_xFrhbOMJDPVquGX2AAeh4tylHnq7IcCflhMSnTsS3W/exec";
         const MY_API_KEY = "7498accc-dde8-4fb0-91f1-541f6c8ec3bd";
+        const MERCHANT_VPA = "paytmqr6u5ayr@ptys";
         let statusInterval;
+        let timerInterval;
+        let lastSubmittedData = {};
 
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
@@ -363,14 +361,27 @@
             terms: { t: "Terms & Conditions", m: "By using our portal, you agree to provide accurate information. MyDream Digital is a facilitator; processing times depend on government server availability. Misuse of our platform for fraudulent activity is strictly prohibited." }
         };
 
-        let lastSubmittedData = {};
+        function startSessionTimer() {
+            let duration = 300; 
+            const display = document.getElementById('payTimer');
+            if(timerInterval) clearInterval(timerInterval);
+            
+            timerInterval = setInterval(() => {
+                let minutes = Math.floor(duration / 60);
+                let seconds = duration % 60;
+                display.innerText = `${minutes < 10 ? '0'+minutes : minutes}:${seconds < 10 ? '0'+seconds : seconds}`;
+                if (--duration < 0) {
+                    clearInterval(timerInterval);
+                    clearInterval(statusInterval);
+                    alert("Session Expired. Please try again.");
+                    document.getElementById('payOverlay').classList.remove('active');
+                }
+            }, 1000);
+        }
 
-        // 🔥 REAL STATUS POLLING LOGIC 🔥
-        async function checkPaymentStatus(orderId) {
-            const warn = document.getElementById('utrWarning');
-            warn.innerText = "⌛ Verifying payment... Please wait";
-            warn.classList.remove('hidden', 'text-red-600', 'text-green-600');
-            warn.classList.add('text-blue-600');
+        async function startPolling(orderId) {
+            const label = document.getElementById('payStatusLabel');
+            if(statusInterval) clearInterval(statusInterval);
 
             statusInterval = setInterval(async () => {
                 try {
@@ -378,25 +389,20 @@
                     const result = await res.json();
                     if (result.status === "COMPLETED" || result.status === "SUCCESS") {
                         clearInterval(statusInterval);
-                        warn.innerText = "✅ Verified! Submitting form...";
-                        warn.classList.replace('text-blue-600', 'text-green-600');
-                        // Payment verified, now submit the form data
-                        await finalFormSubmit(orderId); 
+                        clearInterval(timerInterval);
+                        label.innerText = "✅ PAYMENT SUCCESS! SUBMITTING...";
+                        label.classList.replace('text-blue-600', 'text-green-600');
+                        await finalSubmit(orderId); 
                     }
-                } catch (e) { console.log("Polling..."); }
+                } catch (e) { console.log("Verifying Transaction..."); }
             }, 3000);
         }
 
-        function generateDynamicQR(amount) {
-            const orderId = "ORD" + Date.now();
-            const upiID = "7815981216-5@ybl";
+        function generateDynamicQR(amount, orderId) {
             const name = "Sekar Pan Services";
-            const qrUrl = `https://api.upigateway.com/v1/generate-qr?api_key=${MY_API_KEY}&amount=${amount}&order_id=${orderId}&upi=${upiID}&name=${encodeURIComponent(name)}`;
-            
-            document.getElementById('qrImage').src = qrUrl;
-            
-            if(statusInterval) clearInterval(statusInterval);
-            checkPaymentStatus(orderId);
+            const upiLink = `upi://pay?pa=${MERCHANT_VPA}&pn=${encodeURIComponent(name)}&am=${amount}&tr=${orderId}&cu=INR`;
+            const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(upiLink)}`;
+            document.getElementById('dynamicPayQR').src = qrUrl;
         }
 
         async function fetchDocUpdates(type = 'general') {
@@ -439,31 +445,20 @@
             document.getElementById('modalTitle').innerText = s.name;
             document.getElementById('hiddenServiceName').value = s.name;
             document.getElementById('priceSpan').innerText = s.price;
-            document.getElementById('qrSection').classList.toggle('hidden', s.price === 0);
-            
-            if(s.price > 0) generateDynamicQR(s.price);
+            document.getElementById('payOverlay').classList.remove('active');
 
             document.getElementById('trackingUI').classList.add('hidden');
             document.getElementById('aadharPortalUI').classList.add('hidden');
             document.getElementById('applyForm').classList.remove('hidden');
-            document.getElementById('paymentSidebar').classList.remove('hidden');
-            document.getElementById('loanNote').classList.add('hidden');
-            document.getElementById('panImages').classList.toggle('hidden', id !== 'pan');
 
             if(id === 'track') {
                 document.getElementById('trackIDInput').value = "";
                 document.getElementById('statusResult').classList.add('hidden');
                 document.getElementById('trackingUI').classList.remove('hidden');
                 document.getElementById('applyForm').classList.add('hidden');
-                document.getElementById('paymentSidebar').classList.add('hidden');
             } else if(id === 'aadhar_portal') {
                 document.getElementById('aadharPortalUI').classList.remove('hidden');
                 document.getElementById('applyForm').classList.add('hidden');
-                document.getElementById('paymentSidebar').classList.add('hidden');
-            } else if(id === 'loan_assist' || id === 'aadhar_slot') {
-                document.getElementById('qrSection').classList.add('hidden');
-                document.getElementById('loanNote').classList.remove('hidden');
-                document.getElementById('loanTextInfo').innerText = id === 'aadhar_slot' ? "Bethamcherla Mandal Special Doorstep Service." : "Details will be forwarded to verified partners.";
             }
 
             document.getElementById('dynamicFields').innerHTML = s.fields.map(f => {
@@ -483,38 +478,43 @@
 
         async function validateForm(event) {
             event.preventDefault();
-            const s = services[document.getElementById('hiddenServiceName').value.toLowerCase()] || {price: 0};
+            const amount = parseInt(document.getElementById('priceSpan').innerText);
             
-            // Just notify user to pay if it's a paid service
-            if (s.price > 0) {
-                document.getElementById('paymentSidebar').scrollIntoView({behavior: 'smooth'});
+            if(amount > 0) {
+                const orderId = "ORD" + Date.now();
+                document.getElementById('payAmountLabel').innerText = amount;
+                generateDynamicQR(amount, orderId);
+                document.getElementById('payOverlay').classList.add('active');
+                startPolling(orderId);
+                startSessionTimer();
             } else {
-                finalFormSubmit("FREE");
+                await finalSubmit("FREE_TRANSACTION");
             }
         }
 
-        async function finalFormSubmit(txnID) {
+        async function finalSubmit(txnID) {
             const masterID = "MD-" + Math.floor(Math.random() * 900000 + 100000);
             const formData = new FormData(document.getElementById('applyForm'));
             const dataObj = { 
                 Unique_ID: masterID, 
                 Selected_Service: document.getElementById('hiddenServiceName').value, 
                 UTR_Number: txnID,
-                Referral_Code: document.getElementById('referral_code')?.value || "" 
+                Referral_Code: document.getElementById('referral_code').value || ""
             };
             
             formData.forEach((value, key) => { dataObj[key] = value; });
 
             lastSubmittedData = {
                 id: masterID,
-                name: dataObj.Name || dataObj.Owner_Name || dataObj.Business_Name || "Customer",
+                name: dataObj.Name || dataObj.Owner_Name || "Customer",
                 service: dataObj.Selected_Service,
-                mobile: dataObj.Mobile || dataObj.Phone || "N/A",
+                mobile: dataObj.Mobile || "N/A",
                 amount: document.getElementById('priceSpan').innerText,
-                date: new Date().toLocaleString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' })
+                date: new Date().toLocaleString()
             };
 
             document.getElementById('displayUniqueID').innerText = masterID;
+            document.getElementById('payOverlay').classList.remove('active');
             document.getElementById('formModal').classList.remove('active');
             document.getElementById('successModal').classList.add('active');
 
@@ -528,20 +528,7 @@
 
             fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify(dataObj) }).catch(e => console.error(e));
             
-            // WHATSAPP MESSAGE LOGIC
-            let msg = `*--- 🚨 NEW ORDER 🚨 ---*\n\n`;
-            msg += `*ID:* ${masterID}\n*Service:* ${dataObj.Selected_Service}\n`;
-            const skipFields = ['Unique_ID', 'Selected_Service', 'filesArray', 'UTR_Number', 'Referral_Code'];
-            Object.keys(dataObj).forEach(key => {
-                if (!skipFields.includes(key) && dataObj[key]) {
-                    let cleanKey = key.replace(/_/g, ' '); 
-                    msg += `*${cleanKey}:* ${dataObj[key]}\n`;
-                }
-            });
-            msg += `*Payment:* Verified (ID: ${txnID})\n`;
-            if (dataObj.Referral_Code) msg += `*Referral:* ${dataObj.Referral_Code}\n`;
-            msg += `\n*Please check Google Sheet for documents.*`;
-
+            let msg = `*--- 🚨 NEW ORDER 🚨 ---*\n\nID: ${masterID}\nService: ${dataObj.Selected_Service}\nPayment: Verified ✅`;
             document.getElementById('waNotifyBtn').onclick = () => { 
                 window.location.href = `https://wa.me/918919580315?text=${encodeURIComponent(msg)}`; 
             };
@@ -560,8 +547,7 @@
             getBase64Image(document.getElementById('invoiceLogo').src, function(base64Logo) {
                 const element = template.cloneNode(true);
                 element.style.position = "static"; element.style.left = "0";
-                element.querySelector('#invoiceLogo').src = base64Logo;
-                html2pdf().from(element).set({ margin: 0, filename: `${lastSubmittedData.id}.pdf`, html2canvas: { scale: 3, useCORS: true } }).save();
+                html2pdf().from(element).set({ margin: 1, filename: `${lastSubmittedData.id}.pdf` }).save();
             });
         }
 
@@ -574,16 +560,6 @@
                 const data = await res.json();
                 document.getElementById('statusResult').classList.remove('hidden');
                 document.getElementById('statusText').innerText = "STATUS: " + data.status;
-                
-                const statusStr = (data.status || "").toLowerCase();
-                const serviceStr = (data.service || "").toLowerCase();
-                const allowedServices = ["pan", "voter", "udyam"];
-                const isAllowedService = allowedServices.some(s => serviceStr.includes(s));
-
-                if(data.fileUrl && (statusStr.includes('dispatched') || statusStr.includes('completed')) && isAllowedService) {
-                    document.getElementById('downloadAction').classList.remove('hidden');
-                    document.getElementById('fileDownloadBtn').href = data.fileUrl;
-                }
             } catch(e) { alert("Error checking status."); }
             finally { btn.innerText = "Check Status"; }
         }
@@ -591,25 +567,16 @@
         function quickTrack() { const id = document.getElementById('headerTrackInput').value.trim(); if(id) { openForm('track'); document.getElementById('trackIDInput').value = id; fetchStatus(); } }
         function closeForm() { 
             document.getElementById('formModal').classList.remove('active'); 
-            if(statusInterval) clearInterval(statusInterval);
-            if(history.state && history.state.modal) history.back(); 
+            clearInterval(statusInterval);
+            clearInterval(timerInterval);
         }
-        function closeSuccess() { document.getElementById('successModal').classList.remove('active'); location.reload(); }
-        window.onpopstate = function() { if (document.getElementById('formModal').classList.contains('active')) closeForm(); };
         function showLegal(type) { 
             document.getElementById('legalTitle').innerText = legalData[type].t;
             document.getElementById('legalText').innerText = legalData[type].m;
             document.getElementById('legalModal').classList.add('active');
         }
         function closeLegal() { document.getElementById('legalModal').classList.remove('active'); }
-        
-        function calcPrint() { 
-            const pages = parseInt(document.getElementById('pgCount')?.value) || 0; 
-            let total = (pages * 2.5) + 30; 
-            let finalPrice = pages >= 20 ? total : 0;
-            document.getElementById('priceSpan').innerText = finalPrice;
-            if(finalPrice > 0) generateDynamicQR(finalPrice);
-        }
+        function calcPrint() { const pages = parseInt(document.getElementById('pgCount')?.value) || 0; let total = (pages * 2.5) + 30; document.getElementById('priceSpan').innerText = pages >= 20 ? total : 0; }
 
         function renderGrid() {
             const grid = document.getElementById('general-grid');
@@ -626,12 +593,14 @@
                 html += `<div class="grid grid-cols-2 md:grid-cols-4 gap-4">`;
                 serviceKeys.forEach(id => {
                     const s = services[id];
-                    html += `
+                    if(s) {
+                        html += `
                         <div class="service-card" onclick="openForm('${id}')">
                             <div class="text-3xl mb-4">${s.icon}</div>
                             <h4 class="font-bold text-[10px] uppercase text-gray-700 h-8 flex items-center justify-center">${s.name}</h4>
                             <p class="text-[#B12704] font-bold text-sm mt-3">${s.price === 0 ? 'FREE' : '₹'+s.price}</p>
                         </div>`;
+                    }
                 });
                 html += `</div>`;
             }
